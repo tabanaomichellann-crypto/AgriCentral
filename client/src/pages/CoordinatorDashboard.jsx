@@ -1,3 +1,7 @@
+// pages/CoordinatorDashboard.jsx
+// Added: Equipment tab with full CRUD (name, category, image → MongoDB),
+//        all request monitoring, and AEW condition log validation.
+
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -5,116 +9,72 @@ import {
   getAssociations, createAssociation, deleteAssociation,
   getMembers, addMember, removeMember,
   getFARUsers,
-  getEquipment, createEquipment, updateEquipment, deleteEquipment,
 } from '../services/api';
+import {
+  createEquipment, updateEquipment, deleteEquipment,
+  validateConditionLog,
+} from '../services/equipmentApi';
+import {
+  useEquipment, useRequests, useConditionLogs,
+  Modal, Field, ImagePicker, StatusBadge, EquipImage, StatCard,
+  SectionTitle, DataTable, TD, Empty,
+  btn, inputStyle, CATEGORIES, EQUIP_STATUSES,
+} from './Shared';
 import '../styles/CoordinatorDashboard.css';
 
 const PROOF_TYPES = ['Ownership', 'Tenancy', 'Agreement'];
-const STATUS      = ['Available', 'In Use', 'Under Maintenance', 'Retired'];
-const EQUIP_TYPES = ['Hand Tractor', 'Grass Cutter', 'Other'];
-
-const emptyFarmer = { rsbaNumber: '', firstName: '', lastName: '', contactNumber: '', address: '', proofOfOwnershipType: '', validIdRef: '' };
-const emptyAssoc  = { associationName: '', address: '', presidentUserId: '' };
-const emptyEquip  = { name: '', serialNumber: '', condition: 'Available', notes: '' };
-
-function Modal({ title, error, onClose, onSubmit, loading, submitLabel = 'Save', children }) {
-  return (
-    <div className="coord-overlay" onClick={onClose}>
-      <div className="coord-modal" onClick={e => e.stopPropagation()}>
-        <h3>{title}</h3>
-        {error && <div className="coord-modal-error">{error}</div>}
-        <form onSubmit={onSubmit}>
-          {children}
-          <div className="coord-modal-footer">
-            <button type="button" className="btn-cancel" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn-primary-sm" disabled={loading}>
-              {loading ? 'Saving...' : submitLabel}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-function FormField({ label, children }) {
-  return (
-    <div className="form-group">
-      <label>{label}</label>
-      {children}
-    </div>
-  );
-}
 
 export default function CoordinatorDashboard() {
   const navigate = useNavigate();
   const name     = localStorage.getItem('fullName');
   const logout   = () => { localStorage.clear(); navigate('/login'); };
-
   const [tab, setTab] = useState('Farmers');
 
-  // Farmers
-  const [farmers, setFarmers]           = useState([]);
-  const [showFarmer, setShowFarmer]     = useState(false);
-  const [farmerForm, setFarmerForm]     = useState(emptyFarmer);
-
-  // Associations
-  const [assocs, setAssocs]             = useState([]);
-  const [farUsers, setFarUsers]         = useState([]);
-  const [showAssoc, setShowAssoc]       = useState(false);
-  const [assocForm, setAssocForm]       = useState(emptyAssoc);
+  // ── Farmers state ──────────────────────────────────────────────────────
+  const [farmers, setFarmers]       = useState([]);
+  const [assocs, setAssocs]         = useState([]);
+  const [farUsers, setFarUsers]     = useState([]);
+  const [showFarmer, setShowFarmer] = useState(false);
+  const [showAssoc, setShowAssoc]   = useState(false);
   const [showMembers, setShowMembers]   = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
   const [selectedAssoc, setSelectedAssoc] = useState(null);
-  const [members, setMembers]           = useState([]);
+  const [members, setMembers]       = useState([]);
   const [addMemberFarmerId, setAddMemberFarmerId] = useState('');
+  const [farmerForm, setFarmerForm] = useState({ rsbaNumber: '', firstName: '', lastName: '', contactNumber: '', address: '', proofOfOwnershipType: '', validIdRef: '' });
+  const [assocForm, setAssocForm]   = useState({ associationName: '', address: '', presidentUserId: '' });
 
-  // Equipment
-  const [equipTab, setEquipTab]         = useState('Hand Tractor');
-  const [equipItems, setEquipItems]     = useState([]);
-  const [showEquip, setShowEquip]       = useState(false);
-  const [editEquip, setEditEquip]       = useState(null);
-  const [equipForm, setEquipForm]       = useState(emptyEquip);
+  // ── Equipment state ────────────────────────────────────────────────────
+  const { equipment, reload: reloadEquip } = useEquipment();
+  const { requests }                       = useRequests();
+  const { logs, reload: reloadLogs }       = useConditionLogs();
+  const [showEquipModal, setShowEquipModal] = useState(false);
+  const [editItem, setEditItem]            = useState(null);
+  const [equipForm, setEquipForm]          = useState({ equipment_name: '', category: '', quantity_total: 0, quantity_available: 0, status: 'Available', image: null });
 
-  // Shared
-  const [error, setError]               = useState('');
-  const [modalError, setModalError]     = useState('');
-  const [loading, setLoading]           = useState(false);
+  // ── Shared ─────────────────────────────────────────────────────────────
+  const [error, setError]           = useState('');
+  const [modalError, setModalError] = useState('');
+  const [loading, setLoading]       = useState(false);
 
   const loadAll = useCallback(async () => {
     try {
       const [f, a, u] = await Promise.all([getFarmers(), getAssociations(), getFARUsers()]);
-      setFarmers(f.data);
-      setAssocs(a.data);
-      setFarUsers(u.data);
-      setError('');
-    } catch {
-      setError('Failed to load data.');
-    }
+      setFarmers(f.data); setAssocs(a.data); setFarUsers(u.data);
+    } catch { setError('Failed to load data.'); }
   }, []);
 
-  const loadEquipment = useCallback(async () => {
-    try {
-      const res = await getEquipment(equipTab);
-      setEquipItems(res.data);
-      setError('');
-    } catch {
-      setError('Failed to load equipment.');
-    }
-  }, [equipTab]);
-
   useEffect(() => { loadAll(); }, [loadAll]);
-  useEffect(() => { if (tab === 'Equipment') loadEquipment(); }, [tab, loadEquipment]);
 
-  // Farmer CRUD
+  // ── Farmer handlers ────────────────────────────────────────────────────
   const handleCreateFarmer = async (e) => {
     e.preventDefault(); setLoading(true); setModalError('');
     try {
       await createFarmer(farmerForm);
-      setShowFarmer(false); setFarmerForm(emptyFarmer); loadAll();
-    } catch (err) {
-      setModalError(err.response?.data?.message || 'Failed to create farmer.');
-    } finally { setLoading(false); }
+      setShowFarmer(false); setFarmerForm({ rsbaNumber: '', firstName: '', lastName: '', contactNumber: '', address: '', proofOfOwnershipType: '', validIdRef: '' });
+      loadAll();
+    } catch (err) { setModalError(err.response?.data?.message || 'Failed to create farmer.'); }
+    finally { setLoading(false); }
   };
 
   const handleDeleteFarmer = async (id) => {
@@ -123,31 +83,21 @@ export default function CoordinatorDashboard() {
     catch { setError('Failed to delete farmer.'); }
   };
 
-  // Association CRUD
+  // ── Association handlers ───────────────────────────────────────────────
   const handleCreateAssoc = async (e) => {
     e.preventDefault(); setLoading(true); setModalError('');
     try {
       await createAssociation(assocForm);
-      setShowAssoc(false); setAssocForm(emptyAssoc); loadAll();
-    } catch (err) {
-      setModalError(err.response?.data?.message || 'Failed to create association.');
-    } finally { setLoading(false); }
+      setShowAssoc(false); setAssocForm({ associationName: '', address: '', presidentUserId: '' });
+      loadAll();
+    } catch (err) { setModalError(err.response?.data?.message || 'Failed to create association.'); }
+    finally { setLoading(false); }
   };
 
-  const handleDeleteAssoc = async (id) => {
-    if (!window.confirm('Delete this association?')) return;
-    try { await deleteAssociation(id); loadAll(); }
-    catch { setError('Failed to delete association.'); }
-  };
-
-  // Members
   const openMembers = async (assoc) => {
     setSelectedAssoc(assoc);
-    try {
-      const res = await getMembers(assoc._id);
-      setMembers(res.data);
-      setShowMembers(true);
-    } catch { setError('Failed to load members.'); }
+    try { const res = await getMembers(assoc._id); setMembers(res.data); setShowMembers(true); }
+    catch { setError('Failed to load members.'); }
   };
 
   const handleAddMember = async (e) => {
@@ -155,88 +105,80 @@ export default function CoordinatorDashboard() {
     try {
       await addMember(selectedAssoc._id, { farmerId: addMemberFarmerId });
       const res = await getMembers(selectedAssoc._id);
-      setMembers(res.data);
-      setAddMemberFarmerId('');
-      setShowAddMember(false);
-      loadAll();
-    } catch (err) {
-      setModalError(err.response?.data?.message || 'Failed to add member.');
-    } finally { setLoading(false); }
+      setMembers(res.data); setAddMemberFarmerId(''); setShowAddMember(false); loadAll();
+    } catch (err) { setModalError(err.response?.data?.message || 'Failed to add member.'); }
+    finally { setLoading(false); }
   };
 
   const handleRemoveMember = async (memberId) => {
     if (!window.confirm('Remove this member?')) return;
-    try {
-      await removeMember(selectedAssoc._id, memberId);
-      const res = await getMembers(selectedAssoc._id);
-      setMembers(res.data);
-      loadAll();
-    } catch { setError('Failed to remove member.'); }
+    try { await removeMember(selectedAssoc._id, memberId); const res = await getMembers(selectedAssoc._id); setMembers(res.data); loadAll(); }
+    catch { setError('Failed to remove member.'); }
   };
 
-  // Equipment CRUD
-  const openCreateEquip = () => {
-    setEditEquip(null); setEquipForm(emptyEquip); setModalError(''); setShowEquip(true);
+  // ── Equipment handlers ─────────────────────────────────────────────────
+  const openAddEquip = () => {
+    setEditItem(null);
+    setEquipForm({ equipment_name: '', category: '', quantity_total: 0, quantity_available: 0, status: 'Available', image: null });
+    setModalError(''); setShowEquipModal(true);
   };
 
   const openEditEquip = (item) => {
-    setEditEquip(item);
-    setEquipForm({ name: item.name, serialNumber: item.serialNumber || '', condition: item.condition, notes: item.notes || '' });
-    setModalError(''); setShowEquip(true);
-  };
-
-  const closeEquip = () => {
-    setShowEquip(false); setEditEquip(null); setEquipForm(emptyEquip); setModalError('');
+    setEditItem(item);
+    setEquipForm({ equipment_name: item.equipment_name, category: item.category || '', quantity_total: item.quantity_total, quantity_available: item.quantity_available, status: item.status, image: null });
+    setModalError(''); setShowEquipModal(true);
   };
 
   const handleSaveEquip = async (e) => {
     e.preventDefault(); setLoading(true); setModalError('');
     try {
-      if (editEquip) {
-        await updateEquipment(editEquip._id, equipForm);
-      } else {
-        await createEquipment({ ...equipForm, equipmentType: equipTab });
-      }
-      closeEquip(); loadEquipment();
-    } catch (err) {
-      setModalError(err.response?.data?.message || 'Failed to save equipment.');
-    } finally { setLoading(false); }
+      const payload = {
+        equipment_name: equipForm.equipment_name,
+        category: equipForm.category,
+        quantity_total: Number(equipForm.quantity_total),
+        quantity_available: Number(equipForm.quantity_available),
+        status: equipForm.status,
+      };
+
+      if (editItem) await updateEquipment(editItem._id, payload);
+      else          await createEquipment(payload);
+
+      setShowEquipModal(false); reloadEquip();
+    } catch (err) { setModalError(err.response?.data?.message || 'Failed to save equipment.'); }
+    finally { setLoading(false); }
   };
 
   const handleDeleteEquip = async (id) => {
     if (!window.confirm('Delete this equipment?')) return;
-    try { await deleteEquipment(id); loadEquipment(); }
+    try { await deleteEquipment(id); reloadEquip(); }
     catch { setError('Failed to delete equipment.'); }
   };
 
-  // Helpers
-  const ff = (k) => (e) => setFarmerForm(p => ({ ...p, [k]: e.target.value }));
-  const af = (k) => (e) => setAssocForm(p => ({ ...p, [k]: e.target.value }));
-  const ef = (k) => (e) => setEquipForm(p => ({ ...p, [k]: e.target.value }));
+  const handleValidateLog = async (logId) => {
+    try { await validateConditionLog(logId); reloadLogs(); }
+    catch { setError('Failed to validate log.'); }
+  };
 
-  const closeFarmer  = () => { setShowFarmer(false);  setFarmerForm(emptyFarmer); setModalError(''); };
-  const closeAssoc   = () => { setShowAssoc(false);   setAssocForm(emptyAssoc);   setModalError(''); };
-  const closeMembers = () => { setShowMembers(false); setSelectedAssoc(null); setMembers([]); setShowAddMember(false); };
-
+  // ── Nav ────────────────────────────────────────────────────────────────
   const navItems = [
     { key: 'Farmers',      icon: '👨‍🌾', label: 'Farmers'      },
     { key: 'Associations', icon: '🤝', label: 'Associations'  },
     { key: 'Equipment',    icon: '🚜', label: 'Equipment'     },
   ];
 
+  const ef = k => e => setEquipForm(p => ({ ...p, [k]: e.target.value }));
+  const ff = k => e => setFarmerForm(p => ({ ...p, [k]: e.target.value }));
+  const af = k => e => setAssocForm(p => ({ ...p, [k]: e.target.value }));
+
   return (
     <div className="coord-layout">
-
       {/* Sidebar */}
       <aside className="coord-sidebar">
         <div className="coord-sidebar-brand">🌾 AgriCentral</div>
         <nav className="coord-nav">
           {navItems.map(n => (
-            <button key={n.key}
-              className={`coord-nav-btn${tab === n.key ? ' active' : ''}`}
-              onClick={() => setTab(n.key)}>
-              <span className="coord-nav-icon">{n.icon}</span>
-              {n.label}
+            <button key={n.key} className={`coord-nav-btn${tab === n.key ? ' active' : ''}`} onClick={() => setTab(n.key)}>
+              <span className="coord-nav-icon">{n.icon}</span>{n.label}
             </button>
           ))}
         </nav>
@@ -245,37 +187,27 @@ export default function CoordinatorDashboard() {
             <div className="coord-user-name">{name}</div>
             <div className="coord-user-role">Program Coordinator</div>
           </div>
-          <button className="coord-logout-btn" onClick={logout}>
-            <span className="coord-nav-icon">🚪</span> Sign out
-          </button>
+          <button className="coord-logout-btn" onClick={logout}>🚪 Sign out</button>
         </div>
       </aside>
 
       {/* Main */}
       <div className="coord-main">
-        <div className="coord-topbar">
-          <span className="coord-topbar-title">{tab}</span>
-        </div>
-
+        <div className="coord-topbar"><span className="coord-topbar-title">{tab}</span></div>
         <div className="coord-body">
           {error && <div className="coord-error">{error}</div>}
 
-          {/* Farmers */}
+          {/* ── FARMERS TAB ── */}
           {tab === 'Farmers' && (
             <>
               <div className="coord-page-header">
                 <h2>Registered Farmers</h2>
-                <button className="btn-primary-sm" onClick={() => { setModalError(''); setShowFarmer(true); }}>
-                  + Add Farmer
-                </button>
+                <button className="btn-primary-sm" onClick={() => { setModalError(''); setShowFarmer(true); }}>+ Add Farmer</button>
               </div>
               <div className="coord-card">
                 <table className="coord-table">
                   <thead>
-                    <tr>
-                      {['RSBA No.', 'Name', 'Contact', 'Address', 'Proof of Ownership', 'Registered', 'Actions'].map(h =>
-                        <th key={h}>{h}</th>)}
-                    </tr>
+                    <tr>{['RSBA No.', 'Name', 'Contact', 'Address', 'Proof', 'Registered', 'Actions'].map(h => <th key={h}>{h}</th>)}</tr>
                   </thead>
                   <tbody>
                     {farmers.length === 0
@@ -288,9 +220,7 @@ export default function CoordinatorDashboard() {
                           <td className="coord-td-muted">{f.address || '—'}</td>
                           <td><span className="badge-proof">{f.proofOfOwnershipType}</span></td>
                           <td className="coord-td-muted">{new Date(f.registeredAt).toLocaleDateString()}</td>
-                          <td>
-                            <button className="btn-danger-sm" onClick={() => handleDeleteFarmer(f._id)}>Delete</button>
-                          </td>
+                          <td><button className="btn-danger-sm" onClick={() => handleDeleteFarmer(f._id)}>Delete</button></td>
                         </tr>
                       ))}
                   </tbody>
@@ -299,26 +229,21 @@ export default function CoordinatorDashboard() {
             </>
           )}
 
-          {/* Associations */}
+          {/* ── ASSOCIATIONS TAB ── */}
           {tab === 'Associations' && (
             <>
               <div className="coord-page-header">
                 <h2>Farmer Associations</h2>
-                <button className="btn-primary-sm" onClick={() => { setModalError(''); setShowAssoc(true); }}>
-                  + Add Association
-                </button>
+                <button className="btn-primary-sm" onClick={() => { setModalError(''); setShowAssoc(true); }}>+ Add Association</button>
               </div>
               <div className="coord-card">
                 <table className="coord-table">
                   <thead>
-                    <tr>
-                      {['Association Name', 'Address', 'President', 'Members', 'Registered', 'Actions'].map(h =>
-                        <th key={h}>{h}</th>)}
-                    </tr>
+                    <tr>{['Association Name', 'Address', 'President', 'Members', 'Registered', 'Actions'].map(h => <th key={h}>{h}</th>)}</tr>
                   </thead>
                   <tbody>
                     {assocs.length === 0
-                      ? <tr><td colSpan={6} className="coord-empty">No associations registered yet.</td></tr>
+                      ? <tr><td colSpan={6} className="coord-empty">No associations yet.</td></tr>
                       : assocs.map(a => (
                         <tr key={a._id}>
                           <td>{a.associationName}</td>
@@ -328,7 +253,7 @@ export default function CoordinatorDashboard() {
                           <td className="coord-td-muted">{new Date(a.registeredAt).toLocaleDateString()}</td>
                           <td style={{ display: 'flex', gap: 6 }}>
                             <button className="btn-outline-sm" onClick={() => openMembers(a)}>Members</button>
-                            <button className="btn-danger-sm" onClick={() => handleDeleteAssoc(a._id)}>Delete</button>
+                            <button className="btn-danger-sm" onClick={() => deleteAssociation(a._id).then(loadAll)}>Delete</button>
                           </td>
                         </tr>
                       ))}
@@ -338,196 +263,202 @@ export default function CoordinatorDashboard() {
             </>
           )}
 
-          {/* Equipment */}
+          {/* ── EQUIPMENT TAB ── */}
           {tab === 'Equipment' && (
             <>
-              <div className="coord-page-header">
-                <h2>Equipment Inventory</h2>
-                <button className="btn-primary-sm" onClick={openCreateEquip}>+ Add Equipment</button>
+              {/* Stats */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 24 }}>
+                <StatCard label="Total Types"     value={equipment.length}                                              icon="📦" accent="#16a34a" />
+                <StatCard label="Available Units" value={equipment.reduce((s, e) => s + e.quantity_available, 0)}      icon="✅" accent="#2563eb" />
+                <StatCard label="Pending Requests" value={requests.filter(r => r.status === 'Pending').length}         icon="⏳" accent="#d97706" />
+                <StatCard label="Logs to Validate" value={logs.filter(l => !l.validated).length}                      icon="🔍" accent="#7c3aed" />
               </div>
 
-              {/* Equipment sub-tabs */}
-              <div style={{ display: 'flex', gap: 8, marginBottom: '1rem' }}>
-                {EQUIP_TYPES.map(t => (
-                  <button key={t}
-                    className={equipTab === t ? 'btn-primary-sm' : 'btn-outline-sm'}
-                    onClick={() => setEquipTab(t)}>
-                    {t === 'Other' ? 'Other Machinery' : `${t}s`}
-                  </button>
+              {/* Equipment inventory */}
+              <SectionTitle
+                title="Equipment Inventory"
+                sub="All agricultural equipment with image stored in MongoDB"
+                action={<button style={btn.primary} onClick={openAddEquip}>+ Add Equipment</button>}
+              />
+              <DataTable
+                columns={['', 'Name', 'Category', 'Total', 'Available', 'Status', 'Actions']}
+                emptyIcon="🚜" emptyMsg="No equipment added yet."
+                rows={equipment.map(item => (
+                  <> 
+                    <TD><EquipImage imageId={item.imageId} name={item.equipment_name} size={44} /></TD>
+                    <TD bold>{item.equipment_name}</TD>
+                    <TD muted>{item.category || '—'}</TD>
+                    <TD>{item.quantity_total}</TD>
+                    <TD>{item.quantity_available}</TD>
+                    <TD><StatusBadge status={item.status} /></TD>
+                    <td style={{ padding: '10px 16px' }}>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button style={btn.outline} onClick={() => openEditEquip(item)}>Edit</button>
+                        <button style={btn.danger}  onClick={() => handleDeleteEquip(item._id)}>Delete</button>
+                      </div>
+                    </td>
+                  </>
                 ))}
-              </div>
+              />
 
-              <div className="coord-card">
-                <table className="coord-table">
-                  <thead>
-                    <tr>
-                      {['Name', 'Serial No.', 'Status', 'Notes', 'Actions'].map(h =>
-                        <th key={h}>{h}</th>)}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {equipItems.length === 0
-                      ? <tr><td colSpan={5} className="coord-empty">No equipment registered yet.</td></tr>
-                      : equipItems.map(item => (
-                        <tr key={item._id}>
-                          <td>{item.name}</td>
-                          <td className="coord-td-muted">{item.serialNumber || '—'}</td>
-                          <td><span className="badge-proof">{item.condition}</span></td>
-                          <td className="coord-td-muted">{item.notes || '—'}</td>
-                          <td style={{ display: 'flex', gap: 6 }}>
-                            <button className="btn-outline-sm" onClick={() => openEditEquip(item)}>Edit</button>
-                            <button className="btn-danger-sm" onClick={() => handleDeleteEquip(item._id)}>Delete</button>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
+              {/* All requests — monitor only */}
+              <SectionTitle title="All Equipment Requests" sub="Full pipeline view — all roles" />
+              <DataTable
+                columns={['Association', 'Equipment', 'Qty', 'Purpose', 'Status', 'Requested']}
+                emptyIcon="📋" emptyMsg="No requests submitted yet."
+                rows={requests.map(r => (
+                  <>
+                    <TD bold>{r.association_id?.associationName || '—'}</TD>
+                    <TD>{r.equipment_id?.equipment_name || '—'}</TD>
+                    <TD>{r.quantity_requested}</TD>
+                    <TD muted>{r.purpose || '—'}</TD>
+                    <TD><StatusBadge status={r.status} /></TD>
+                    <TD muted>{new Date(r.requested_at).toLocaleDateString()}</TD>
+                  </>
+                ))}
+              />
+
+              {/* Condition logs — validate */}
+              <SectionTitle title="AEW Condition Logs" sub="Validate field inspection reports submitted by Extension Workers" />
+              <DataTable
+                columns={['Equipment', 'Recorded By', 'Condition', 'Remarks', 'Proof Photo', 'Date', 'Action']}
+                emptyIcon="📝" emptyMsg="No condition logs yet."
+                rows={logs.map(l => (
+                  <>
+                    <TD bold>{l.equipment_id?.equipment_name || '—'}</TD>
+                    <TD muted>{l.recorded_by?.fullName || '—'}</TD>
+                    <TD><StatusBadge status={l.condition_status} /></TD>
+                    <TD muted>{l.remarks || '—'}</TD>
+                    <td style={{ padding: '10px 16px' }}>
+                      {l.proofImageId
+                        ? <a href={`/api/images/${l.proofImageId}`} target="_blank" rel="noreferrer"
+                            style={{ color: '#2563eb', fontSize: 12 }}>View photo</a>
+                        : <span style={{ color: '#9ca3af', fontSize: 12 }}>No photo</span>}
+                    </td>
+                    <TD muted>{new Date(l.recorded_at).toLocaleDateString()}</TD>
+                    <td style={{ padding: '10px 16px' }}>
+                      {l.validated
+                        ? <span style={{ color: '#16a34a', fontSize: 12, fontWeight: 700 }}>✓ Validated</span>
+                        : <button style={btn.approve} onClick={() => handleValidateLog(l._id)}>Validate</button>}
+                    </td>
+                  </>
+                ))}
+              />
             </>
           )}
         </div>
       </div>
 
-      {/* Farmer Modal */}
+      {/* ── Equipment Modal ── */}
+      {showEquipModal && (
+        <Modal title={editItem ? 'Edit Equipment' : 'Add Equipment'} onClose={() => setShowEquipModal(false)}
+          onSubmit={handleSaveEquip} loading={loading} submitLabel={editItem ? 'Update' : 'Save'}>
+          {modalError && <div style={{ background: '#fee2e2', color: '#991b1b', padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: 13 }}>{modalError}</div>}
+          <Field label="Equipment Name">
+            <input style={inputStyle} value={equipForm.equipment_name} onChange={ef('equipment_name')} required placeholder="e.g. Kubota L3408 Tractor" />
+          </Field>
+          <Field label="Category">
+            <select style={inputStyle} value={equipForm.category} onChange={ef('category')} required>
+              <option value="">Select category…</option>
+              {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+            </select>
+          </Field>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <Field label="Total Quantity">
+              <input style={inputStyle} type="number" min={0} value={equipForm.quantity_total} onChange={ef('quantity_total')} required />
+            </Field>
+            <Field label="Available Quantity">
+              <input style={inputStyle} type="number" min={0} value={equipForm.quantity_available} onChange={ef('quantity_available')} required />
+            </Field>
+          </div>
+          <Field label="Status">
+            <select style={inputStyle} value={equipForm.status} onChange={ef('status')}>
+              {EQUIP_STATUSES.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
+            </select>
+          </Field>
+          {/* Image upload — stored as Buffer/GridFS in MongoDB */}
+          <ImagePicker
+            label="Equipment Photo (stored in MongoDB)"
+            value={equipForm.image}
+            onChange={file => setEquipForm(p => ({ ...p, image: file }))}
+          />
+        </Modal>
+      )}
+
+      {/* ── Farmer Modal ── */}
       {showFarmer && (
-        <Modal title="Register Farmer" error={modalError} loading={loading}
-          onClose={closeFarmer} onSubmit={handleCreateFarmer}>
-          <FormField label="RSBA Number">
-            <input placeholder="e.g. 0100-0001-000001" value={farmerForm.rsbaNumber} onChange={ff('rsbaNumber')} required />
-          </FormField>
-          <FormField label="First Name">
-            <input value={farmerForm.firstName} onChange={ff('firstName')} required />
-          </FormField>
-          <FormField label="Last Name">
-            <input value={farmerForm.lastName} onChange={ff('lastName')} required />
-          </FormField>
-          <FormField label="Contact Number">
-            <input value={farmerForm.contactNumber} onChange={ff('contactNumber')} />
-          </FormField>
-          <FormField label="Address">
-            <input value={farmerForm.address} onChange={ff('address')} />
-          </FormField>
-          <FormField label="Proof of Ownership">
-            <select value={farmerForm.proofOfOwnershipType} onChange={ff('proofOfOwnershipType')} required>
+        <Modal title="Register Farmer" onClose={() => { setShowFarmer(false); setModalError(''); }}
+          onSubmit={handleCreateFarmer} loading={loading}>
+          {modalError && <div style={{ background: '#fee2e2', color: '#991b1b', padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: 13 }}>{modalError}</div>}
+          <Field label="RSBA Number"><input style={inputStyle} value={farmerForm.rsbaNumber} onChange={ff('rsbaNumber')} required /></Field>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <Field label="First Name"><input style={inputStyle} value={farmerForm.firstName} onChange={ff('firstName')} required /></Field>
+            <Field label="Last Name"><input style={inputStyle} value={farmerForm.lastName} onChange={ff('lastName')} required /></Field>
+          </div>
+          <Field label="Contact Number"><input style={inputStyle} value={farmerForm.contactNumber} onChange={ff('contactNumber')} /></Field>
+          <Field label="Address"><input style={inputStyle} value={farmerForm.address} onChange={ff('address')} /></Field>
+          <Field label="Proof of Ownership">
+            <select style={inputStyle} value={farmerForm.proofOfOwnershipType} onChange={ff('proofOfOwnershipType')} required>
               <option value="">Select type</option>
               {PROOF_TYPES.map(t => <option key={t}>{t}</option>)}
             </select>
-          </FormField>
-          <FormField label="Valid ID Reference">
-            <input value={farmerForm.validIdRef} onChange={ff('validIdRef')} />
-          </FormField>
+          </Field>
+          <Field label="Valid ID Reference"><input style={inputStyle} value={farmerForm.validIdRef} onChange={ff('validIdRef')} /></Field>
         </Modal>
       )}
 
-      {/* Association Modal */}
+      {/* ── Association Modal ── */}
       {showAssoc && (
-        <Modal title="Create Association" error={modalError} loading={loading}
-          onClose={closeAssoc} onSubmit={handleCreateAssoc}>
-          <FormField label="Association Name">
-            <input value={assocForm.associationName} onChange={af('associationName')} required />
-          </FormField>
-          <FormField label="Address">
-            <input value={assocForm.address} onChange={af('address')} />
-          </FormField>
-          <FormField label="President (Farmer Association Representative)">
-            <select value={assocForm.presidentUserId} onChange={af('presidentUserId')} required>
+        <Modal title="Create Association" onClose={() => { setShowAssoc(false); setModalError(''); }}
+          onSubmit={handleCreateAssoc} loading={loading}>
+          {modalError && <div style={{ background: '#fee2e2', color: '#991b1b', padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: 13 }}>{modalError}</div>}
+          <Field label="Association Name"><input style={inputStyle} value={assocForm.associationName} onChange={af('associationName')} required /></Field>
+          <Field label="Address"><input style={inputStyle} value={assocForm.address} onChange={af('address')} /></Field>
+          <Field label="President (FAR User)">
+            <select style={inputStyle} value={assocForm.presidentUserId} onChange={af('presidentUserId')} required>
               <option value="">Select president</option>
-              {farUsers.map(u => (
-                <option key={u._id} value={u._id}>{u.fullName} ({u.username})</option>
-              ))}
+              {farUsers.map(u => <option key={u._id} value={u._id}>{u.fullName} ({u.username})</option>)}
             </select>
-          </FormField>
+          </Field>
         </Modal>
       )}
 
-      {/* Equipment Modal */}
-      {showEquip && (
-        <Modal
-          title={editEquip ? 'Edit Equipment' : 'Add Equipment'}
-          error={modalError} loading={loading}
-          onClose={closeEquip} onSubmit={handleSaveEquip}
-          submitLabel={editEquip ? 'Update' : 'Save'}>
-          <FormField label="Name">
-            <input value={equipForm.name} onChange={ef('name')} required placeholder="e.g. Kubota L3408" />
-          </FormField>
-          <FormField label="Serial Number">
-            <input value={equipForm.serialNumber} onChange={ef('serialNumber')} placeholder="Optional" />
-          </FormField>
-          <FormField label="Condition / Status">
-            <select value={equipForm.condition} onChange={ef('condition')}>
-              {STATUS.map(s => <option key={s}>{s}</option>)}
-            </select>
-          </FormField>
-          <FormField label="Notes">
-            <input value={equipForm.notes} onChange={ef('notes')} placeholder="Optional" />
-          </FormField>
-        </Modal>
-      )}
-
-      {/* Members Modal */}
+      {/* ── Members Modal ── */}
       {showMembers && selectedAssoc && (
-        <div className="coord-overlay" onClick={closeMembers}>
-          <div className="coord-modal" style={{ width: 500 }} onClick={e => e.stopPropagation()}>
-            <h3>Members — {selectedAssoc.associationName}</h3>
-
-            {showAddMember ? (
-              <form onSubmit={handleAddMember}>
-                {modalError && <div className="coord-modal-error">{modalError}</div>}
-                <FormField label="Select Farmer">
-                  <select value={addMemberFarmerId}
-                    onChange={e => setAddMemberFarmerId(e.target.value)} required>
-                    <option value="">Choose a farmer</option>
-                    {farmers
-                      .filter(f => !members.some(m => m.farmerId?._id === f._id))
-                      .map(f => (
-                        <option key={f._id} value={f._id}>
-                          {f.firstName} {f.lastName} — {f.rsbaNumber}
-                        </option>
-                      ))}
-                  </select>
-                </FormField>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button type="submit" className="btn-primary-sm" disabled={loading}>
-                    {loading ? 'Adding...' : 'Add'}
-                  </button>
-                  <button type="button" className="btn-cancel"
-                    onClick={() => { setShowAddMember(false); setModalError(''); }}>
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <button className="btn-primary-sm"
-                style={{ marginBottom: '1rem' }}
-                onClick={() => { setShowAddMember(true); setModalError(''); }}>
-                + Add Member
-              </button>
-            )}
-
-            <div className="members-panel">
-              <div className="members-panel-header">
-                <span className="members-panel-title">
-                  {members.length} member{members.length !== 1 ? 's' : ''}
-                </span>
+        <Modal title={`Members — ${selectedAssoc.associationName}`} onClose={() => { setShowMembers(false); setSelectedAssoc(null); setMembers([]); setShowAddMember(false); }}>
+          {showAddMember ? (
+            <form onSubmit={handleAddMember}>
+              {modalError && <div style={{ background: '#fee2e2', color: '#991b1b', padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: 13 }}>{modalError}</div>}
+              <Field label="Select Farmer">
+                <select style={inputStyle} value={addMemberFarmerId} onChange={e => setAddMemberFarmerId(e.target.value)} required>
+                  <option value="">Choose a farmer</option>
+                  {farmers.filter(f => !members.some(m => m.farmerId?._id === f._id)).map(f => (
+                    <option key={f._id} value={f._id}>{f.firstName} {f.lastName} — {f.rsbaNumber}</option>
+                  ))}
+                </select>
+              </Field>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button type="submit" style={btn.primary} disabled={loading}>{loading ? 'Adding…' : 'Add Member'}</button>
+                <button type="button" style={btn.ghost} onClick={() => setShowAddMember(false)}>Cancel</button>
               </div>
-              {members.length === 0
-                ? <p style={{ fontSize: 13, color: '#9CA3AF', margin: 0 }}>No members yet.</p>
-                : members.map(m => (
-                  <div key={m._id} className="member-row">
-                    <div>
-                      <div className="member-name">{m.farmerId?.firstName} {m.farmerId?.lastName}</div>
-                      <div className="member-rsba">{m.farmerId?.rsbaNumber}</div>
-                    </div>
-                    <button className="btn-danger-sm" onClick={() => handleRemoveMember(m._id)}>Remove</button>
+            </form>
+          ) : (
+            <button style={{ ...btn.primary, marginBottom: 16 }} onClick={() => setShowAddMember(true)}>+ Add Member</button>
+          )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {members.length === 0
+              ? <Empty icon="👥" message="No members yet." />
+              : members.map(m => (
+                <div key={m._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f9fafb', borderRadius: 8, padding: '10px 14px' }}>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: 13 }}>{m.farmerId?.firstName} {m.farmerId?.lastName}</div>
+                    <div style={{ fontSize: 11, color: '#9ca3af' }}>{m.farmerId?.rsbaNumber}</div>
                   </div>
-                ))}
-            </div>
-
-            <div className="coord-modal-footer">
-              <button className="btn-cancel" onClick={closeMembers}>Close</button>
-            </div>
+                  <button style={btn.danger} onClick={() => handleRemoveMember(m._id)}>Remove</button>
+                </div>
+              ))}
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

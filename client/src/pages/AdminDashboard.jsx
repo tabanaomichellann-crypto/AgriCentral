@@ -195,15 +195,24 @@ export default function AdminDashboard() {
           {/* Stats */}
           <div className="stats-row">
             <div className="stat-card">
-              <div className="stat-label">Total Users</div>
+              <div className="stat-card-head">
+                <div className="stat-label">Total Users</div>
+                <span className="stat-icon"><i className="bx bx-user"></i></span>
+              </div>
               <div className="stat-value">{nonAdmin.length}</div>
             </div>
             <div className="stat-card">
-              <div className="stat-label">Active</div>
+              <div className="stat-card-head">
+                <div className="stat-label">Active</div>
+                <span className="stat-icon stat-icon-active"><i className="bx bx-check-circle"></i></span>
+              </div>
               <div className="stat-value">{nonAdmin.filter(u => u.status === 'Active').length}</div>
             </div>
             <div className="stat-card">
-              <div className="stat-label">Inactive</div>
+              <div className="stat-card-head">
+                <div className="stat-label">Inactive</div>
+                <span className="stat-icon stat-icon-inactive"><i className="bx bx-x-circle"></i></span>
+              </div>
               <div className="stat-value">{nonAdmin.filter(u => u.status === 'Inactive').length}</div>
             </div>
           </div>

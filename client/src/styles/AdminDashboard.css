@@ -192,6 +192,32 @@ body {
 .stat-card:nth-child(3) {
   border-left-color: rgb(226, 186, 9); /* light green */
 }
+.stat-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ECFDF5;
+  color: #065F46;
+  font-size: 18px;
+}
+.stat-icon.stat-icon-active {
+  background: #ECFDF5;
+  color: #065F46;
+}
+.stat-icon.stat-icon-inactive {
+  background: #F3F4F6;
+  color: #6B7280;
+}
 .stat-label {
   font-size: 13px;
   color: black;
@@ -269,7 +295,7 @@ td {
 .td-muted  { color: #9CA3AF; }
 .td-empty  { text-align: center; color: #9CA3AF; padding: 32px !important; }
 
-/* ── Badges ── */
+/* Badges */
 .pill {
   font-size: 11px;
   padding: 3px 10px;
@@ -280,12 +306,12 @@ td {
 .pill-coord  { background: #EFF6FF; color: #1D4ED8; }
 .pill-ext    { background: #ECFDF5; color: #065F46; }
 .pill-head   { background: #FFFBEB; color: #92400E; }
-.pill-rep    { background: #F3F4F6; color: #374151; }
+.pill-rep { background: #FFECB3; color: #92400E; }
 .pill-gov    { background: #F5F3FF; color: #6D28D9; }
 .pill-active   { background: #ECFDF5; color: #065F46; }
 .pill-inactive { background: #F3F4F6; color: #9CA3AF; }
 
-/* ── Action buttons ── */
+/* Action buttons */
 .btn-action {
   font-size: 11px;
   padding: 5px 11px;
@@ -298,7 +324,7 @@ td {
   font-family: 'Poppins', sans-serif;
   transition: background 0.15s;
 }
-.btn-action:hover { background: #f1f7a7; }
+.btn-action:hover { background: #DBEAFE; color: #1D4ED8; border-color: rgb(194, 194, 221); }
 .btn-action.danger { color: #B91C1C; border-color: #FECACA; }
 .btn-action.danger:hover { background: #FEF2F2; }
 

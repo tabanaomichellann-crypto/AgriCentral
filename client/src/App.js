@@ -5,8 +5,7 @@ import CoordinatorDashboard from './pages/CoordinatorDashboard';
 import ExtensionWorkerDashboard from './pages/ExtensionWorkerDashboard';
 import HeadDashboard from './pages/HeadDashboard';
 import FarmerDashboard from './pages/FarmerDashboard';
-import GovernorDashboard from './pages/GovernorDashboard';
-import EquipmentDashboard from './pages/EquipmentDashboard'; 
+import GovernorDashboard from './pages/GovernorDashboard'; 
 
 // Redirect user based on role
 function getDashboardByRole(role) {
@@ -85,13 +84,6 @@ function App() {
         <Route path="/governor-assistant" element={
           <PrivateRoute allowedRole="Governor Assistant">
             <GovernorDashboard />
-          </PrivateRoute>
-        } />
-
-        {/* Equipment dashboard (Program Coordinator only) */}
-        <Route path="/equipment" element={
-          <PrivateRoute allowedRole="Program Coordinator">
-            <EquipmentDashboard />
           </PrivateRoute>
         } />
 
