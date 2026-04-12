@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   useLivestock, Modal, StatusBadge, StatCard, EquipImage,
-  SectionTitle, DataTable, TD, Empty, btn,
+  SectionTitle, DataTable, TD, btn,
 } from '../Shared';
 
 export default function LivestockPage() {

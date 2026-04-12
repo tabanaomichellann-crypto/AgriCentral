@@ -6,8 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   useLivestockRequests,
   Modal, StatusBadge, StatCard, EquipImage,
-  SectionTitle, DataTable, TD, Empty,
-  btn, REQUEST_STATUSES,
+  SectionTitle, DataTable, TD,
+  btn,
 } from '../Shared';
 
 export default function LivestockRequestPage() {
@@ -19,7 +19,6 @@ export default function LivestockRequestPage() {
   const pending = requests.filter(r => r.status === 'Pending');
   const approved = requests.filter(r => r.status === 'Gov_Approved' || r.status === 'Head_Approved');
   const issued = requests.filter(r => r.status === 'Issued');
-  const rejected = requests.filter(r => r.status === 'Rejected');
 
   const canApprove = (request) => {
     if (role === 'Governor Assistant' && request.status === 'Pending') return true;

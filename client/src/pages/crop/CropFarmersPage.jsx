@@ -4,11 +4,11 @@
 import { useState, useEffect } from 'react';
 import {
   Modal, Field, StatusBadge, StatCard, SectionTitle,
-  btn, inputStyle, labelStyle, Empty, DataTable, TD,
+  btn, inputStyle, Empty, DataTable, TD,
 } from '../Shared';
 import {
   getCrops, getFarmers, getFarmerCrops,
-  getFarmersByCrop, getCropsByFarmer, assignCropToFarmer, updateFarmerCrop, removeCropFromFarmer
+  assignCropToFarmer, updateFarmerCrop, removeCropFromFarmer
 } from '../../services/api';
 
 export default function CropFarmersPage() {

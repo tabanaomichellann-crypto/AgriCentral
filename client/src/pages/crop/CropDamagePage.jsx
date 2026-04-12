@@ -3,8 +3,8 @@
 
 import { useState, useEffect } from 'react';
 import {
-  Modal, Field, StatusBadge, StatCard, SectionTitle,
-  btn, inputStyle, labelStyle, Empty, DataTable, TD,
+  Modal, Field, StatCard, SectionTitle,
+  btn, inputStyle, Empty, DataTable, TD,
 } from '../Shared';
 import {
   getCrops, getFarmers, getCropDamages, getCropDamageStats,

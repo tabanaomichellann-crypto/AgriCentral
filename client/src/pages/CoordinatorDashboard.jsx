@@ -10,8 +10,6 @@ import {
   getMembers, addMember, removeMember,
 } from '../services/api';
 import CropPage from './crop/CropPage';
-import LivestockPage from './livestock/LivestockPage';
-import LivestockRequestPage from './livestock/LivestockRequest';
 import logo from '../assets/AgriCentral_Logo.png';
 import {
   createEquipment, updateEquipment, deleteEquipment,
