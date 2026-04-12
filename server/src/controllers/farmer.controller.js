@@ -49,6 +49,10 @@ exports.getAssociations = async (req, res) => {
 
 exports.createAssociation = async (req, res) => {
   try {
+    const { associationName, presidentName } = req.body;
+    if (!associationName || !presidentName) {
+      return res.status(400).json({ message: 'Missing required fields: associationName, presidentName' });
+    }
     const assoc = await Association.create(req.body);
     res.status(201).json(assoc);
   } catch (err) { res.status(500).json({ message: err.message }); }
@@ -96,5 +100,61 @@ exports.getFARUsers = async (req, res) => {
     const users = await User.find({ role: 'Farmer Association Representative' })
       .select('fullName username');
     res.json(users);
+  } catch (err) { res.status(500).json({ message: err.message }); }
+};
+
+// ── Demo Data Seeding (for development only) ────────────────────────────────
+
+exports.seedDemo = async (req, res) => {
+  try {
+    // Check if demo data already exists
+    const existing = await Farmer.findOne({ rsbaNumber: 'DEMO-001' });
+    if (existing) return res.status(400).json({ message: 'Demo data already seeded.' });
+
+    // Create association
+    const assoc = await Association.create({
+      agencyCode: 'ASSOC-001',
+      associationName: 'San Jose Farmers Cooperative',
+      region: 'Region III',
+      province: 'Bulacan',
+      municipality: 'San Jose',
+      barangay: 'Tuktukan',
+      presidentName: 'Juan Dela Cruz',
+      contactNumber: '09123456789',
+      memberCount: 45,
+    });
+
+    // Create farmers
+    await Farmer.create([
+      {
+        rsbaNumber: 'DEMO-001',
+        firstName: 'Juan',
+        lastName: 'Dela Cruz',
+        contactNumber: '09123456789',
+        address: 'Sitio Laya, San Jose, Bulacan',
+        proofOfOwnershipType: 'Ownership',
+        validIdRef: 'Driver\'s License - ABC123456',
+      },
+      {
+        rsbaNumber: 'DEMO-002',
+        firstName: 'Maria',
+        lastName: 'Santos',
+        contactNumber: '09198765432',
+        address: 'Barangay Tuktukan, San Jose, Bulacan',
+        proofOfOwnershipType: 'Tenancy',
+        validIdRef: 'Voter\'s ID - XYZ789012',
+      },
+      {
+        rsbaNumber: 'DEMO-003',
+        firstName: 'Pedro',
+        lastName: 'Reyes',
+        contactNumber: '09156789012',
+        address: 'Barangay Paluming, San Jose, Bulacan',
+        proofOfOwnershipType: 'Agreement',
+        validIdRef: 'PRC ID - DEF345678',
+      },
+    ]);
+
+    res.status(201).json({ message: '✅ Demo data seeded successfully!', association: assoc });
   } catch (err) { res.status(500).json({ message: err.message }); }
 };

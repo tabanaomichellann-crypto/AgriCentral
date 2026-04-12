@@ -14,27 +14,34 @@ const ROLES = [
 ];
 
 const ROLE_PILL = {
-  'Program Coordinator': 'pill-coord',
-  'Agriculture Extension Worker': 'pill-ext',
-  'Head of the Office': 'pill-head',
+  'Program Coordinator':               'pill-coord',
+  'Agriculture Extension Worker':      'pill-ext',
+  'Head of the Office':                'pill-head',
   'Farmer Association Representative': 'pill-rep',
-  'Governor Assistant': 'pill-gov',
+  'Governor Assistant':                'pill-gov',
 };
 
-const NAV = [{ icon: '👥', label: 'User Management' }];
+const NAV = [
+  { icon: <i className='bx bx-group'></i>, label: 'User Management' },
+];
+
+function getInitials(name = '') {
+  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+}
 
 export default function AdminDashboard() {
-  const [users, setUsers] = useState([]);
-  const [search, setSearch] = useState('');
+  const [users, setUsers]           = useState([]);
+  const [search, setSearch]         = useState('');
   const [filterRole, setFilterRole] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ fullName: '', username: '', password: '', role: '' });
-  const [error, setError] = useState('');
+  const [showModal, setShowModal]   = useState(false);
+  const [form, setForm]             = useState({ fullName: '', username: '', password: '', role: '' });
+  const [error, setError]           = useState('');
   const [modalError, setModalError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading]       = useState(false);
+  const [activeNav, setActiveNav]   = useState('User Management');
 
   const navigate = useNavigate();
-  const fullName = localStorage.getItem('fullName');
+  const fullName = localStorage.getItem('fullName') || 'Administrator';
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -52,7 +59,7 @@ export default function AdminDashboard() {
   }, [navigate]);
 
   useEffect(() => {
-    const role = localStorage.getItem('role');
+    const role  = localStorage.getItem('role');
     const token = localStorage.getItem('token');
 
     if (role !== 'Admin' || !token) return navigate('/login');
@@ -156,8 +163,13 @@ export default function AdminDashboard() {
         </div>
 
         <nav className="sidebar-nav">
+          <div className="nav-section-label">Main Menu</div>
           {NAV.map(item => (
-            <button key={item.label} className="nav-btn active">
+            <button
+              key={item.label}
+              className={`nav-btn ${activeNav === item.label ? 'active' : ''}`}
+              onClick={() => setActiveNav(item.label)}
+            >
               <span className="nav-icon">{item.icon}</span>
               {item.label}
             </button>
@@ -165,9 +177,12 @@ export default function AdminDashboard() {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="user-info">
-            <div className="user-name">{fullName}</div>
-            <div className="user-role">Admin</div>
+          <div className="user-card">
+            <div className="user-avatar">{getInitials(fullName)}</div>
+            <div>
+              <div className="user-name">{fullName}</div>
+              <div className="user-role">System Admin</div>
+            </div>
           </div>
           <button className="logout-btn" onClick={logout}>
             <span>🚪</span> Sign out
@@ -177,14 +192,27 @@ export default function AdminDashboard() {
 
       {/* Main */}
       <div className="main">
+
+        {/* Topbar */}
         <div className="topbar">
-          <span className="topbar-title">User Management</span>
+          <div className="topbar-left">
+            <span className="topbar-breadcrumb">
+              Dashboard &rsaquo; <span>User Management</span>
+            </span>
+          </div>
+          <div className="topbar-right">
+            <span className="topbar-badge">AgriCentral Admin</span>
+          </div>
         </div>
 
         <div className="body">
 
-          <div className="page-header">
-            <h2>All Users</h2>
+          {/* Page Banner */}
+          <div className="page-banner">
+            <div className="page-banner-text">
+              <h2>User Management</h2>
+              <p>Manage system accounts, roles, and access levels</p>
+            </div>
             <button className="btn-primary" onClick={() => setShowModal(true)}>
               + Create User
             </button>
@@ -196,24 +224,30 @@ export default function AdminDashboard() {
           <div className="stats-row">
             <div className="stat-card">
               <div className="stat-card-head">
-                <div className="stat-label">Total Users</div>
+                <div>
+                  <div className="stat-label">Total Users</div>
+                  <div className="stat-value">{nonAdmin.length}</div>
+                </div>
                 <span className="stat-icon"><i className="bx bx-user"></i></span>
               </div>
-              <div className="stat-value">{nonAdmin.length}</div>
             </div>
             <div className="stat-card">
               <div className="stat-card-head">
-                <div className="stat-label">Active</div>
+                <div>
+                  <div className="stat-label">Active</div>
+                  <div className="stat-value">{nonAdmin.filter(u => u.status === 'Active').length}</div>
+                </div>
                 <span className="stat-icon stat-icon-active"><i className="bx bx-check-circle"></i></span>
               </div>
-              <div className="stat-value">{nonAdmin.filter(u => u.status === 'Active').length}</div>
             </div>
             <div className="stat-card">
               <div className="stat-card-head">
-                <div className="stat-label">Inactive</div>
+                <div>
+                  <div className="stat-label">Inactive</div>
+                  <div className="stat-value">{nonAdmin.filter(u => u.status === 'Inactive').length}</div>
+                </div>
                 <span className="stat-icon stat-icon-inactive"><i className="bx bx-x-circle"></i></span>
               </div>
-              <div className="stat-value">{nonAdmin.filter(u => u.status === 'Inactive').length}</div>
             </div>
           </div>
 
@@ -346,3 +380,4 @@ export default function AdminDashboard() {
     </div>
   );
 }
+

@@ -12,6 +12,7 @@ import ExtensionWorkerDashboard from '../pages/ExtensionWorkerDashboard';
 import EquipmentPage        from '../pages/equipment/EquipmentPage';
 import EquipmentRequestPage from '../pages/equipment/EquipmentRequestPage';
 import ConditionLogPage     from '../pages/equipment/ConditionLogPage';
+import CropPage             from '../pages/crop/CropPage';
 
 // Auth guard — redirects to /login if no token
 function PrivateRoute({ children, roles }) {
@@ -45,6 +46,7 @@ export default function AppRoutes() {
         <Route path="equipment"         element={<EquipmentPage />} />
         <Route path="equipment/requests" element={<EquipmentRequestPage />} />
         <Route path="equipment/logs"     element={<ConditionLogPage />} />
+        <Route path="crops"             element={<CropPage />} />
       </Route>
 
       {/* Governor — approve/reject requests (first gate) */}

@@ -7,6 +7,7 @@ import {
   SectionTitle, DataTable, TD, Empty,
   btn, inputStyle,
 } from './Shared';
+import logo from '../assets/AgriCentral_Logo.png';
 
 // Request form modal 
 function RequestModal({ equipment, preselect, onClose, onDone }) {
@@ -14,6 +15,7 @@ function RequestModal({ equipment, preselect, onClose, onDone }) {
     equipment_id: preselect?._id || '',
     quantity_requested: 1,
     purpose: '',
+    president_name: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
@@ -29,6 +31,7 @@ function RequestModal({ equipment, preselect, onClose, onDone }) {
         equipment_id: form.equipment_id,
         quantity_requested: form.quantity_requested,
         purpose: form.purpose,
+        president_name: form.president_name,
         ...(associationId && { association_id: associationId }),
       };
       await createEquipmentRequest(payload);
@@ -84,6 +87,17 @@ function RequestModal({ equipment, preselect, onClose, onDone }) {
           max={maxQty}
           value={form.quantity_requested}
           onChange={e => setForm(p => ({ ...p, quantity_requested: Number(e.target.value) }))}
+          required
+        />
+      </Field>
+
+      <Field label="President / Representative">
+        <input
+          style={inputStyle}
+          type="text"
+          value={form.president_name}
+          onChange={e => setForm(p => ({ ...p, president_name: e.target.value }))}
+          placeholder="Enter the association president or authorized representative"
           required
         />
       </Field>
@@ -163,14 +177,14 @@ export default function FarmerDashboard() {
   const myIssued  = requests.filter(r => r.status === 'Issued');
 
   const navItems = [
-    { key: 'Equipment', icon: '🚜', label: 'Browse Equipment' },
-    { key: 'Requests',  icon: '📋', label: 'My Requests'      },
+    { key: 'Equipment', icon: <i className="bx bx-tractor" />, label: 'Browse Equipment' },
+    { key: 'Requests',  icon: <i className="bx bx-clipboard" />, label: 'My Requests'      },
   ];
 
   return (
     <div className="coord-layout">
       <aside className="coord-sidebar">
-        <div className="coord-sidebar-brand">🌾 AgriCentral</div>
+        <div className="coord-sidebar-brand"><img src={logo} alt="AgriCentral Logo" className="dashboard-logo" /> AgriCentral</div>
         <nav className="coord-nav">
           {navItems.map(n => (
             <button
@@ -188,7 +202,7 @@ export default function FarmerDashboard() {
             <div className="coord-user-role">Assoc. Representative</div>
             <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>{assocName}</div>
           </div>
-          <button className="coord-logout-btn" onClick={logout}>🚪 Sign out</button>
+          <button className="coord-logout-btn" onClick={logout}><i className="bx bx-log-out" /> Sign out</button>
         </div>
       </aside>
 
@@ -202,9 +216,9 @@ export default function FarmerDashboard() {
           {tab === 'Equipment' && (
             <>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 24 }}>
-                <StatCard label="Available Types" value={available.length} icon="🚜" accent="#16a34a" />
-                <StatCard label="My Pending Reqs" value={myPending.length} icon="⏳" accent="#d97706" />
-                <StatCard label="Issued to Us"    value={myIssued.length}  icon="✅" accent="#2563eb" />
+                <StatCard label="Available Types" value={available.length} icon={<i className="bx bx-wrench" />} accent="#16a34a" />
+                <StatCard label="My Pending Reqs" value={myPending.length} icon={<i className="bx bx-time" />} accent="#d97706" />
+                <StatCard label="Issued to Us"    value={myIssued.length}  icon={<i className="bx bx-check-circle" />} accent="#2563eb" />
               </div>
 
               {/* Category filter + request button */}
@@ -231,7 +245,7 @@ export default function FarmerDashboard() {
 
               {/* Equipment grid */}
               {filtered.length === 0
-                ? <Empty icon="🚜" message="No equipment available in this category." />
+                ? <Empty icon={<i className="bx bx-box" />} message="No equipment available in this category." />
                 : (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 16 }}>
                     {filtered.map(item => (
@@ -248,7 +262,7 @@ export default function FarmerDashboard() {
                         <div style={{ height: 140, background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                           {item.imageId
                             ? <img src={`/api/images/${item.imageId}`} alt={item.equipment_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            : <span style={{ fontSize: 56 }}>🚜</span>}
+                            : <i className="bx bx-tractor" style={{ fontSize: 56, color: '#9ca3af' }} />}
                         </div>
                         <div style={{ padding: 14 }}>
                           <div style={{ fontWeight: 700, fontSize: 14, color: '#111827', marginBottom: 4 }}>{item.equipment_name}</div>
@@ -287,20 +301,21 @@ export default function FarmerDashboard() {
               />
 
               <DataTable
-                columns={['Equipment', 'Photo', 'Qty', 'Purpose', 'Status', 'Submitted']}
-                emptyIcon="📋" emptyMsg="You have not submitted any requests yet."
-                rows={requests.map(r => (
-                  <>
-                    <TD bold>{r.equipment_id?.equipment_name || '—'}</TD>
-                    <td style={{ padding: '10px 16px' }}>
-                      <EquipImage imageId={r.equipment_id?.imageId} name="" size={40} />
-                    </td>
-                    <TD>{r.quantity_requested}</TD>
-                    <TD muted>{r.purpose || '—'}</TD>
-                    <TD><StatusBadge status={r.status} /></TD>
-                    <TD muted>{new Date(r.requested_at).toLocaleDateString()}</TD>
-                  </>
-                ))}
+                  columns={['Equipment', 'Photo', 'Qty', 'President', 'Purpose', 'Status', 'Submitted']}
+                  emptyIcon="📋" emptyMsg="You have not submitted any requests yet."
+                  rows={requests.map(r => (
+                    <>
+                      <TD bold>{r.equipment_id?.equipment_name || '—'}</TD>
+                      <td style={{ padding: '10px 16px' }}>
+                        <EquipImage imageId={r.equipment_id?.imageId} name="" size={40} />
+                      </td>
+                      <TD>{r.quantity_requested}</TD>
+                      <TD muted>{r.president_name || '—'}</TD>
+                      <TD muted>{r.purpose || '—'}</TD>
+                      <TD><StatusBadge status={r.status} /></TD>
+                      <TD muted>{new Date(r.createdAt || r.requested_at).toLocaleDateString()}</TD>
+                    </>
+                  ))}
               />
 
               {/* Status legend */}

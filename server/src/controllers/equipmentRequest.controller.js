@@ -32,10 +32,10 @@ exports.getMyRequests = async (req, res) => {
 // Create equipment request (farmers/association reps)
 exports.createRequest = async (req, res) => {
   try {
-    const { equipment_id, quantity_requested, purpose, association_id } = req.body;
+    const { equipment_id, quantity_requested, purpose, association_id, president_name } = req.body;
 
-    if (!equipment_id || !quantity_requested || !purpose) {
-      return res.status(400).json({ message: 'Missing required fields: equipment_id, quantity_requested, purpose' });
+    if (!equipment_id || !quantity_requested || !purpose || !president_name) {
+      return res.status(400).json({ message: 'Missing required fields: equipment_id, quantity_requested, purpose, president_name' });
     }
 
     const equipment = await Equipment.findById(equipment_id);
@@ -54,6 +54,7 @@ exports.createRequest = async (req, res) => {
       farmer_id: req.user.id,
       quantity_requested,
       purpose,
+      president_name,
       ...(association_id && { association_id }),
       status: 'Pending',
     });

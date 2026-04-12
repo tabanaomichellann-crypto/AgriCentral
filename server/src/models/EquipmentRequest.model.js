@@ -16,6 +16,10 @@ const equipmentRequestSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Association',
     },
+    president_name: {
+      type: String,
+      trim: true,
+    },
     quantity_requested: {
       type: Number,
       required: true,

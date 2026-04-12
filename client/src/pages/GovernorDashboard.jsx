@@ -7,6 +7,7 @@ import {
   SectionTitle, DataTable, TD,
   btn, inputStyle,
 } from './Shared';
+import logo from '../assets/AgriCentral_Logo.png';
 
 // Approval Modal
 function DecisionModal({ request, decision, onClose, onDone }) {
@@ -71,15 +72,15 @@ export default function GovernorDashboard() {
   const rejected    = requests.filter(r => r.status === 'Rejected');
 
   const navItems = [
-    { key: 'Overview',  icon: '📊', label: 'Overview'          },
-    { key: 'Equipment', icon: '🚜', label: 'Equipment Requests' },
+    { key: 'Overview',  icon: <i className="bx bx-bar-chart-alt-2" />, label: 'Overview'          },
+    { key: 'Equipment', icon: <i className="bx bx-package" />, label: 'Equipment Requests' },
   ];
 
   return (
     <div className="coord-layout">
       {/* Sidebar */}
       <aside className="coord-sidebar">
-        <div className="coord-sidebar-brand">🌾 AgriCentral</div>
+        <div className="coord-sidebar-brand"><img src={logo} alt="AgriCentral Logo" className="dashboard-logo" /> AgriCentral</div>
         <nav className="coord-nav">
           {navItems.map(n => (
             <button key={n.key} className={`coord-nav-btn${tab === n.key ? ' active' : ''}`} onClick={() => setTab(n.key)}>
@@ -92,7 +93,7 @@ export default function GovernorDashboard() {
             <div className="coord-user-name">{name}</div>
             <div className="coord-user-role">Governor</div>
           </div>
-          <button className="coord-logout-btn" onClick={logout}>🚪 Sign out</button>
+          <button className="coord-logout-btn" onClick={logout}><i className="bx bx-log-out" /> Sign out</button>
         </div>
       </aside>
 
@@ -106,9 +107,9 @@ export default function GovernorDashboard() {
             <>
               <h2 style={{ margin: '0 0 20px', fontSize: 20, color: '#111827' }}>Welcome, Governor {name}</h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
-                <StatCard label="Pending Approval" value={pending.length}     icon="⏳" accent="#d97706" />
-                <StatCard label="Approved"          value={govApproved.length} icon="✅" accent="#16a34a" />
-                <StatCard label="Rejected"          value={rejected.length}    icon="❌" accent="#dc2626" />
+                <StatCard label="Pending Approval" value={pending.length}     icon={<i className="bx bx-time" />} accent="#d97706" />
+                <StatCard label="Approved"          value={govApproved.length} icon={<i className="bx bx-check-circle" />} accent="#16a34a" />
+                <StatCard label="Rejected"          value={rejected.length}    icon={<i className="bx bx-x-circle" />} accent="#dc2626" />
               </div>
               <div style={{ marginTop: 24, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 20 }}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 8 }}>Your Role in the Process</div>
@@ -125,16 +126,16 @@ export default function GovernorDashboard() {
           {tab === 'Equipment' && (
             <>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 24 }}>
-                <StatCard label="Awaiting Your Decision" value={pending.length}     icon="⏳" accent="#d97706" />
-                <StatCard label="Forwarded to Head"      value={govApproved.length} icon="📤" accent="#2563eb" />
-                <StatCard label="Rejected"               value={rejected.length}    icon="❌" accent="#dc2626" />
+                <StatCard label="Awaiting Your Decision" value={pending.length}     icon={<i className="bx bx-time" />} accent="#d97706" />
+                <StatCard label="Forwarded to Head"      value={govApproved.length} icon={<i className="bx bx-send" />} accent="#2563eb" />
+                <StatCard label="Rejected"               value={rejected.length}    icon={<i className="bx bx-x-circle" />} accent="#dc2626" />
               </div>
 
               {/* Pending — needs action */}
               <SectionTitle title="Pending Requests" sub="These require your approval or rejection" />
               <DataTable
                 columns={['Equipment', 'Photo', 'Association', 'Qty', 'Purpose', 'Submitted', 'Action']}
-                emptyIcon="📋" emptyMsg="No pending requests."
+                emptyIcon={<i className="bx bx-clipboard" />} emptyMsg="No pending requests."
                 rows={pending.map(r => (
                   <>
                     <TD bold>{r.equipment_id?.equipment_name || '—'}</TD>
@@ -157,7 +158,7 @@ export default function GovernorDashboard() {
               <SectionTitle title="All Requests History" sub="Complete log of all equipment requests" />
               <DataTable
                 columns={['Equipment', 'Association', 'Qty', 'Status', 'Submitted']}
-                emptyIcon="📋" emptyMsg="No requests yet."
+                emptyIcon={<i className="bx bx-clipboard" />} emptyMsg="No requests yet."
                 rows={requests.map(r => (
                   <>
                     <TD bold>{r.equipment_id?.equipment_name || '—'}</TD>

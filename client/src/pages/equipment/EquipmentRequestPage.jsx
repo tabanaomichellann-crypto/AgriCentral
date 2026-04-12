@@ -158,9 +158,19 @@ export default function EquipmentRequestPage() {
             </div>
 
             <div style={{ background: '#f9fafb', borderRadius: 8, padding: 16 }}>
-              <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 4 }}>Purpose</div>
-              <div style={{ fontSize: 14, color: '#111827' }}>
-                {selectedRequest.purpose || 'No purpose specified'}
+              <div style={{ display: 'grid', gap: 10 }}>
+                <div>
+                  <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 4 }}>President / Representative</div>
+                  <div style={{ fontSize: 14, color: '#111827' }}>
+                    {selectedRequest.president_name || '—'}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 4 }}>Purpose</div>
+                  <div style={{ fontSize: 14, color: '#111827' }}>
+                    {selectedRequest.purpose || 'No purpose specified'}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

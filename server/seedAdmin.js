@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const User = require('./models/User.model'); 
+const User = require('./src/models/User.model'); 
 require('dotenv').config();
 
 async function seedAdmin() {
@@ -27,7 +27,7 @@ async function seedAdmin() {
 
     console.log('✅ Admin account created successfully!');
     console.log('   Username : admin');
-    console.log('   Password : Admin@1234');
+    console.log('   Password : Admin@123');
     console.log('   ⚠️  Change the password after first login!');
     process.exit(0);
   } catch (err) {

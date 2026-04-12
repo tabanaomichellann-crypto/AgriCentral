@@ -8,19 +8,29 @@ import {
   getFarmers, createFarmer, deleteFarmer,
   getAssociations, createAssociation, deleteAssociation,
   getMembers, addMember, removeMember,
-  getFARUsers,
 } from '../services/api';
+import CropPage from './crop/CropPage';
+import LivestockPage from './livestock/LivestockPage';
+import LivestockRequestPage from './livestock/LivestockRequest';
+import logo from '../assets/AgriCentral_Logo.png';
 import {
   createEquipment, updateEquipment, deleteEquipment,
   validateConditionLog,
 } from '../services/equipmentApi';
 import {
-  useEquipment, useRequests, useConditionLogs,
+  createLivestock, updateLivestock, deleteLivestock,
+} from '../services/livestockApi';
+import {
+  useEquipment, useRequests, useConditionLogs, useLivestock, useLivestockRequests,
   Modal, Field, ImagePicker, StatusBadge, EquipImage, StatCard,
   SectionTitle, DataTable, TD, Empty,
   btn, inputStyle, CATEGORIES, EQUIP_STATUSES,
 } from './Shared';
 import '../styles/CoordinatorDashboard.css';
+
+function getInitials(name = '') {
+  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+}
 
 const PROOF_TYPES = ['Ownership', 'Tenancy', 'Agreement'];
 
@@ -33,7 +43,6 @@ export default function CoordinatorDashboard() {
   // ── Farmers state ──────────────────────────────────────────────────────
   const [farmers, setFarmers]       = useState([]);
   const [assocs, setAssocs]         = useState([]);
-  const [farUsers, setFarUsers]     = useState([]);
   const [showFarmer, setShowFarmer] = useState(false);
   const [showAssoc, setShowAssoc]   = useState(false);
   const [showMembers, setShowMembers]   = useState(false);
@@ -42,7 +51,7 @@ export default function CoordinatorDashboard() {
   const [members, setMembers]       = useState([]);
   const [addMemberFarmerId, setAddMemberFarmerId] = useState('');
   const [farmerForm, setFarmerForm] = useState({ rsbaNumber: '', firstName: '', lastName: '', contactNumber: '', address: '', proofOfOwnershipType: '', validIdRef: '' });
-  const [assocForm, setAssocForm]   = useState({ associationName: '', address: '', presidentUserId: '' });
+  const [assocForm, setAssocForm]   = useState({ associationName: '', address: '', presidentName: '' });
 
   // ── Equipment state ────────────────────────────────────────────────────
   const { equipment, reload: reloadEquip } = useEquipment();
@@ -52,15 +61,23 @@ export default function CoordinatorDashboard() {
   const [editItem, setEditItem]            = useState(null);
   const [equipForm, setEquipForm]          = useState({ equipment_name: '', category: '', quantity_total: 0, quantity_available: 0, status: 'Available', image: null });
 
+  // ── Livestock state ───────────────────────────────────────────────────
+  const { livestock, reload: reloadLivestock } = useLivestock();
+  const { requests: livestockRequests }        = useLivestockRequests();
+  const [showLivestockModal, setShowLivestockModal] = useState(false);
+  const [editLivestock, setEditLivestock]      = useState(null);
+  const [livestockForm, setLivestockForm]      = useState({ name: '', type: '', quantity_total: 0, quantity_available: 0, status: 'Ready_For_Dispersal', image: null, notes: '' });
+
   // ── Shared ─────────────────────────────────────────────────────────────
   const [error, setError]           = useState('');
   const [modalError, setModalError] = useState('');
   const [loading, setLoading]       = useState(false);
+  const [livestockTab, setLivestockTab] = useState('Inventory');
 
   const loadAll = useCallback(async () => {
     try {
-      const [f, a, u] = await Promise.all([getFarmers(), getAssociations(), getFARUsers()]);
-      setFarmers(f.data); setAssocs(a.data); setFarUsers(u.data);
+      const [f, a] = await Promise.all([getFarmers(), getAssociations()]);
+      setFarmers(f.data); setAssocs(a.data);
     } catch { setError('Failed to load data.'); }
   }, []);
 
@@ -88,7 +105,7 @@ export default function CoordinatorDashboard() {
     e.preventDefault(); setLoading(true); setModalError('');
     try {
       await createAssociation(assocForm);
-      setShowAssoc(false); setAssocForm({ associationName: '', address: '', presidentUserId: '' });
+      setShowAssoc(false); setAssocForm({ associationName: '', address: '', presidentName: '' });
       loadAll();
     } catch (err) { setModalError(err.response?.data?.message || 'Failed to create association.'); }
     finally { setLoading(false); }
@@ -159,14 +176,56 @@ export default function CoordinatorDashboard() {
     catch { setError('Failed to validate log.'); }
   };
 
+  // ── Livestock handlers ────────────────────────────────────────────────
+  const openAddLivestock = () => {
+    setEditLivestock(null);
+    setLivestockForm({ name: '', type: '', quantity_total: 0, quantity_available: 0, status: 'Ready_For_Dispersal', image: null, notes: '' });
+    setModalError(''); setShowLivestockModal(true);
+  };
+
+  const openEditLivestock = (item) => {
+    setEditLivestock(item);
+    setLivestockForm({ name: item.name, type: item.type || '', quantity_total: item.quantity_total, quantity_available: item.quantity_available, status: item.status, image: null, notes: item.notes || '' });
+    setModalError(''); setShowLivestockModal(true);
+  };
+
+  const handleSaveLivestock = async (e) => {
+    e.preventDefault(); setLoading(true); setModalError('');
+    try {
+      const payload = {
+        name: livestockForm.name,
+        type: livestockForm.type,
+        quantity_total: Number(livestockForm.quantity_total),
+        quantity_available: Number(livestockForm.quantity_available),
+        status: livestockForm.status,
+        notes: livestockForm.notes,
+      };
+
+      if (editLivestock) await updateLivestock(editLivestock._id, payload);
+      else                await createLivestock(payload);
+
+      setShowLivestockModal(false); reloadLivestock();
+    } catch (err) { setModalError(err.response?.data?.message || 'Failed to save livestock.'); }
+    finally { setLoading(false); }
+  };
+
+  const handleDeleteLivestock = async (id) => {
+    if (!window.confirm('Delete this livestock?')) return;
+    try { await deleteLivestock(id); reloadLivestock(); }
+    catch { setError('Failed to delete livestock.'); }
+  };
+
   // ── Nav ────────────────────────────────────────────────────────────────
   const navItems = [
-    { key: 'Farmers',      icon: '👨‍🌾', label: 'Farmers'      },
-    { key: 'Associations', icon: '🤝', label: 'Associations'  },
-    { key: 'Equipment',    icon: '🚜', label: 'Equipment'     },
+    { key: 'Farmers',      icon: <i className="bx bx-user" />, label: 'Farmers'      },
+    { key: 'Associations', icon: <i className="bx bx-group" />, label: 'Associations'  },
+    { key: 'Equipment',    icon: <i className="bx bx-briefcase" />, label: 'Equipment'     },
+    { key: 'Livestock',    icon: <i className="bx bx-paw" />, label: 'Livestock'     },
+    { key: 'Crops',        icon: <i className="bx bx-leaf" />, label: 'Crops'         },
   ];
 
   const ef = k => e => setEquipForm(p => ({ ...p, [k]: e.target.value }));
+  const lf = k => e => setLivestockForm(p => ({ ...p, [k]: e.target.value }));
   const ff = k => e => setFarmerForm(p => ({ ...p, [k]: e.target.value }));
   const af = k => e => setAssocForm(p => ({ ...p, [k]: e.target.value }));
 
@@ -174,7 +233,8 @@ export default function CoordinatorDashboard() {
     <div className="coord-layout">
       {/* Sidebar */}
       <aside className="coord-sidebar">
-        <div className="coord-sidebar-brand">🌾 AgriCentral</div>
+        <div className="coord-sidebar-brand"><img src={logo} alt="AgriCentral Logo" className="dashboard-logo" /> AgriCentral</div>
+        <div className="coord-nav-section-label">Main Menu</div>
         <nav className="coord-nav">
           {navItems.map(n => (
             <button key={n.key} className={`coord-nav-btn${tab === n.key ? ' active' : ''}`} onClick={() => setTab(n.key)}>
@@ -183,17 +243,29 @@ export default function CoordinatorDashboard() {
           ))}
         </nav>
         <div className="coord-sidebar-footer">
-          <div className="coord-user-info">
-            <div className="coord-user-name">{name}</div>
-            <div className="coord-user-role">Program Coordinator</div>
+          <div className="coord-user-card">
+            <div className="coord-user-avatar">{getInitials(name)}</div>
+            <div>
+              <div className="coord-user-name">{name}</div>
+              <div className="coord-user-role">Program Coordinator</div>
+            </div>
           </div>
-          <button className="coord-logout-btn" onClick={logout}>🚪 Sign out</button>
+          <button className="coord-logout-btn" onClick={logout}><i className="bx bx-log-out" /> Sign out</button>
         </div>
       </aside>
 
       {/* Main */}
       <div className="coord-main">
-        <div className="coord-topbar"><span className="coord-topbar-title">{tab}</span></div>
+        <div className="coord-topbar">
+          <div className="coord-topbar-left">
+            <span className="coord-topbar-breadcrumb">
+              Dashboard &rsaquo; <span>{tab}</span>
+            </span>
+          </div>
+          <div className="coord-topbar-right">
+            <span className="coord-topbar-badge">Program Coordinator</span>
+          </div>
+        </div>
         <div className="coord-body">
           {error && <div className="coord-error">{error}</div>}
 
@@ -248,7 +320,7 @@ export default function CoordinatorDashboard() {
                         <tr key={a._id}>
                           <td>{a.associationName}</td>
                           <td className="coord-td-muted">{a.address || '—'}</td>
-                          <td>{a.presidentUserId?.fullName || '—'}</td>
+                          <td>{a.presidentName || a.presidentUserId?.fullName || '—'}</td>
                           <td><span className="badge-members">{a.memberCount} members</span></td>
                           <td className="coord-td-muted">{new Date(a.registeredAt).toLocaleDateString()}</td>
                           <td style={{ display: 'flex', gap: 6 }}>
@@ -268,10 +340,10 @@ export default function CoordinatorDashboard() {
             <>
               {/* Stats */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 24 }}>
-                <StatCard label="Total Types"     value={equipment.length}                                              icon="📦" accent="#16a34a" />
-                <StatCard label="Available Units" value={equipment.reduce((s, e) => s + e.quantity_available, 0)}      icon="✅" accent="#2563eb" />
-                <StatCard label="Pending Requests" value={requests.filter(r => r.status === 'Pending').length}         icon="⏳" accent="#d97706" />
-                <StatCard label="Logs to Validate" value={logs.filter(l => !l.validated).length}                      icon="🔍" accent="#7c3aed" />
+                <StatCard label="Total Types"     value={equipment.length}                                              icon={<i className="bx bx-package" />} accent="#16a34a" />
+                <StatCard label="Available Units" value={equipment.reduce((s, e) => s + e.quantity_available, 0)}      icon={<i className="bx bx-check-circle" />} accent="#2563eb" />
+                <StatCard label="Pending Requests" value={requests.filter(r => r.status === 'Pending').length}         icon={<i className="bx bx-time" />} accent="#d97706" />
+                <StatCard label="Logs to Validate" value={logs.filter(l => !l.validated).length}                      icon={<i className="bx bx-search" />} accent="#7c3aed" />
               </div>
 
               {/* Equipment inventory */}
@@ -282,7 +354,7 @@ export default function CoordinatorDashboard() {
               />
               <DataTable
                 columns={['', 'Name', 'Category', 'Total', 'Available', 'Status', 'Actions']}
-                emptyIcon="🚜" emptyMsg="No equipment added yet."
+                emptyIcon={<i className="bx bx-box" />} emptyMsg="No equipment added yet."
                 rows={equipment.map(item => (
                   <> 
                     <TD><EquipImage imageId={item.imageId} name={item.equipment_name} size={44} /></TD>
@@ -305,7 +377,7 @@ export default function CoordinatorDashboard() {
               <SectionTitle title="All Equipment Requests" sub="Full pipeline view — all roles" />
               <DataTable
                 columns={['Association', 'Equipment', 'Qty', 'Purpose', 'Status', 'Requested']}
-                emptyIcon="📋" emptyMsg="No requests submitted yet."
+                emptyIcon={<i className="bx bx-clipboard" />} emptyMsg="No requests submitted yet."
                 rows={requests.map(r => (
                   <>
                     <TD bold>{r.association_id?.associationName || '—'}</TD>
@@ -322,7 +394,7 @@ export default function CoordinatorDashboard() {
               <SectionTitle title="AEW Condition Logs" sub="Validate field inspection reports submitted by Extension Workers" />
               <DataTable
                 columns={['Equipment', 'Recorded By', 'Condition', 'Remarks', 'Proof Photo', 'Date', 'Action']}
-                emptyIcon="📝" emptyMsg="No condition logs yet."
+                emptyIcon={<i className="bx bx-notepad" />} emptyMsg="No condition logs yet."
                 rows={logs.map(l => (
                   <>
                     <TD bold>{l.equipment_id?.equipment_name || '—'}</TD>
@@ -345,6 +417,93 @@ export default function CoordinatorDashboard() {
                 ))}
               />
             </>
+          )}
+
+          {/* ── LIVESTOCK TAB ── */}
+          {tab === 'Livestock' && (
+            <>
+              <div className="coord-page-header">
+                <h2>Livestock Management</h2>
+                <p>Monitor herd inventory and review livestock distribution requests.</p>
+              </div>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 18 }}>
+                {['Inventory', 'Requests'].map(item => (
+                  <button
+                    key={item}
+                    type="button"
+                    style={{
+                      ...btn.ghost,
+                      ...(livestockTab === item ? { background: '#ecfdf5', color: '#166534', borderColor: '#86efac' } : {}),
+                    }}
+                    onClick={() => setLivestockTab(item)}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+
+              {livestockTab === 'Inventory' ? (
+                <>
+                  {/* Stats */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 24 }}>
+                    <StatCard label="Total Breeds" value={livestock.length} icon={<i className="bx bx-paw" />} accent="#16a34a" />
+                    <StatCard label="Available Heads" value={livestock.reduce((s, l) => s + l.quantity_available, 0)} icon={<i className="bx bx-check-circle" />} accent="#2563eb" />
+                    <StatCard label="Total Heads" value={livestock.reduce((s, l) => s + l.quantity_total, 0)} icon={<i className="bx bx-bar-chart" />} accent="#7c3aed" />
+                    <StatCard label="Pending Requests" value={livestockRequests.filter(r => r.status === 'Pending').length} icon={<i className="bx bx-time" />} accent="#d97706" />
+                  </div>
+
+                  {/* Livestock inventory */}
+                  <SectionTitle
+                    title="Livestock Inventory"
+                    sub="All animal stocks with herd management"
+                    action={<button style={btn.primary} onClick={openAddLivestock}>+ Add Livestock</button>}
+                  />
+                  <DataTable
+                    columns={['Breed', 'Type', 'Total', 'Available', 'Status', 'Actions']}
+                    emptyIcon={<i className="bx bx-paw" />} emptyMsg="No livestock added yet."
+                    rows={livestock.map(item => (
+                      <>
+                        <TD bold>{item.name}</TD>
+                        <TD muted>{item.type || '—'}</TD>
+                        <TD>{item.quantity_total}</TD>
+                        <TD>{item.quantity_available}</TD>
+                        <TD><StatusBadge status={item.status} /></TD>
+                        <td style={{ padding: '10px 16px' }}>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <button style={btn.outline} onClick={() => openEditLivestock(item)}>Edit</button>
+                            <button style={btn.danger}  onClick={() => handleDeleteLivestock(item._id)}>Delete</button>
+                          </div>
+                        </td>
+                      </>
+                    ))}
+                  />
+                </>
+              ) : (
+                <>
+                  {/* Livestock requests */}
+                  <SectionTitle title="Livestock Distribution Requests" sub="All livestock dispersal requests" />
+                  <DataTable
+                    columns={['Livestock', 'Type', 'Qty', 'Requester', 'Status', 'Requested']}
+                    emptyIcon={<i className="bx bx-clipboard" />} emptyMsg="No livestock requests yet."
+                    rows={livestockRequests.map(r => (
+                      <>
+                        <TD bold>{r.livestock_id?.name || '—'}</TD>
+                        <TD muted>{r.livestock_id?.type || '—'}</TD>
+                        <TD>{r.quantity_requested}</TD>
+                        <TD muted>{r.farmer_id?.fullName || '—'}</TD>
+                        <TD><StatusBadge status={r.status} /></TD>
+                        <TD muted>{new Date(r.createdAt).toLocaleDateString()}</TD>
+                      </>
+                    ))}
+                  />
+                </>
+              )}
+            </>
+          )}
+
+          {/* ── CROPS TAB ── */}
+          {tab === 'Crops' && (
+            <CropPage />
           )}
         </div>
       </div>
@@ -414,11 +573,15 @@ export default function CoordinatorDashboard() {
           {modalError && <div style={{ background: '#fee2e2', color: '#991b1b', padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: 13 }}>{modalError}</div>}
           <Field label="Association Name"><input style={inputStyle} value={assocForm.associationName} onChange={af('associationName')} required /></Field>
           <Field label="Address"><input style={inputStyle} value={assocForm.address} onChange={af('address')} /></Field>
-          <Field label="President (FAR User)">
-            <select style={inputStyle} value={assocForm.presidentUserId} onChange={af('presidentUserId')} required>
-              <option value="">Select president</option>
-              {farUsers.map(u => <option key={u._id} value={u._id}>{u.fullName} ({u.username})</option>)}
-            </select>
+          <Field label="President Name">
+            <input
+              style={inputStyle}
+              type="text"
+              value={assocForm.presidentName}
+              onChange={af('presidentName')}
+              placeholder="Enter the association president name"
+              required
+            />
           </Field>
         </Modal>
       )}
@@ -458,6 +621,48 @@ export default function CoordinatorDashboard() {
                 </div>
               ))}
           </div>
+        </Modal>
+      )}
+
+      {/* ── Livestock Modal ── */}
+      {showLivestockModal && (
+        <Modal title={editLivestock ? 'Edit Livestock' : 'Add Livestock'} onClose={() => setShowLivestockModal(false)}
+          onSubmit={handleSaveLivestock} loading={loading} submitLabel={editLivestock ? 'Update' : 'Save'}>
+          {modalError && <div style={{ background: '#fee2e2', color: '#991b1b', padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: 13 }}>{modalError}</div>}
+          <Field label="Breed/Livestock Name">
+            <input style={inputStyle} value={livestockForm.name} onChange={lf('name')} required placeholder="e.g. Holstein Cattle, Brahman Cross" />
+          </Field>
+          <Field label="Type">
+            <select style={inputStyle} value={livestockForm.type} onChange={lf('type')} required>
+              <option value="">Select type…</option>
+              <option>Cattle</option>
+              <option>Swine</option>
+              <option>Poultry</option>
+              <option>Goat</option>
+              <option>Sheep</option>
+              <option>Fish</option>
+              <option>Other</option>
+            </select>
+          </Field>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <Field label="Total Heads">
+              <input style={inputStyle} type="number" min={0} value={livestockForm.quantity_total} onChange={lf('quantity_total')} required />
+            </Field>
+            <Field label="Available Heads">
+              <input style={inputStyle} type="number" min={0} value={livestockForm.quantity_available} onChange={lf('quantity_available')} required />
+            </Field>
+          </div>
+          <Field label="Status">
+            <select style={inputStyle} value={livestockForm.status} onChange={lf('status')}>
+              <option value="Ready_For_Dispersal">Ready For Dispersal</option>
+              <option value="Under_Quarantine">Under Quarantine</option>
+              <option value="Breeding">Breeding</option>
+              <option value="Unavailable">Unavailable</option>
+            </select>
+          </Field>
+          <Field label="Notes">
+            <textarea style={{ ...inputStyle, minHeight: 80 }} value={livestockForm.notes} onChange={lf('notes')} placeholder="Add any notes about this livestock…" />
+          </Field>
         </Modal>
       )}
     </div>

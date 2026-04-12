@@ -6,6 +6,9 @@ import {
   getEquipment, getEquipmentRequests, getMyEquipmentRequests,
   getConditionLogs, getImageUrl,
 } from '../services/equipmentApi';
+import {
+  getLivestock, getLivestockRequests, getMyLivestockRequests,
+} from '../services/livestockApi';
 
 // Constants
 export const CATEGORIES = [
@@ -16,6 +19,7 @@ export const CATEGORIES = [
 
 export const EQUIP_STATUSES   = ['Available', 'In_Use', 'Under_Repair', 'Retired'];
 export const REQUEST_STATUSES = ['Pending', 'Gov_Approved', 'Head_Approved', 'Issued', 'Rejected'];
+export const LIVESTOCK_STATUSES = ['Ready_For_Dispersal', 'Under_Quarantine', 'Breeding', 'Unavailable'];
 export const CONDITIONS       = ['Good', 'Fair', 'Poor', 'Damaged'];
 
 // Status badge colors 
@@ -33,6 +37,10 @@ const STATUS_COLORS = {
   Fair:         { bg: '#fef9c3', text: '#854d0e', border: '#fde047' },
   Poor:         { bg: '#fee2e2', text: '#991b1b', border: '#fca5a5' },
   Damaged:      { bg: '#ffe4e6', text: '#9f1239', border: '#fda4af' },
+  Ready_For_Dispersal: { bg: '#dcfce7', text: '#166534', border: '#86efac' },
+  Under_Quarantine:    { bg: '#fef9c3', text: '#854d0e', border: '#fde047' },
+  Breeding:            { bg: '#ede9fe', text: '#5b21b6', border: '#c4b5fd' },
+  Unavailable:         { bg: '#f1f5f9', text: '#475569', border: '#cbd5e1' },
 };
 
 export function StatusBadge({ status }) {
@@ -317,6 +325,44 @@ export function useRequests(myOnly = false) {
       setRequests(res.data);
       setError('');
     } catch { setError('Failed to load requests.'); }
+    finally   { setLoading(false); }
+  }, [myOnly]);
+
+  useEffect(() => { load(); }, [load]);
+  return { requests, setRequests, loading, error, reload: load };
+}
+
+export function useLivestock() {
+  const [livestock, setLivestock] = useState([]);
+  const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState('');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await getLivestock();
+      setLivestock(res.data);
+      setError('');
+    } catch { setError('Failed to load livestock.'); }
+    finally   { setLoading(false); }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+  return { livestock, setLivestock, loading, error, reload: load };
+}
+
+export function useLivestockRequests(myOnly = false) {
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState('');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = myOnly ? await getMyLivestockRequests() : await getLivestockRequests();
+      setRequests(res.data);
+      setError('');
+    } catch { setError('Failed to load livestock requests.'); }
     finally   { setLoading(false); }
   }, [myOnly]);
 

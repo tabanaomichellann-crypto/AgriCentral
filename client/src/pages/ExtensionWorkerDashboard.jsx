@@ -13,6 +13,7 @@ import {
   SectionTitle, Empty,
   btn, inputStyle, CONDITIONS,
 } from './Shared';
+import logo from '../assets/AgriCentral_Logo.png';
 
 // ── Condition log form modal ───────────────────────────────────────────────
 function LogModal({ equipment, onClose, onDone }) {
@@ -130,14 +131,14 @@ export default function ExtensionWorkerDashboard() {
   const COND_COLOR = { Good: '#16a34a', Fair: '#d97706', Poor: '#dc2626', Damaged: '#9f1239' };
 
   const navItems = [
-    { key: 'Inspection', icon: '🔍', label: 'Field Inspection' },
-    { key: 'Logs',       icon: '📝', label: 'My Logs'          },
+    { key: 'Inspection', icon: <i className="bx bx-search" />, label: 'Field Inspection' },
+    { key: 'Logs',       icon: <i className="bx bx-note" />, label: 'My Logs'          },
   ];
 
   return (
     <div className="coord-layout">
       <aside className="coord-sidebar">
-        <div className="coord-sidebar-brand">🌾 AgriCentral</div>
+        <div className="coord-sidebar-brand"><img src={logo} alt="AgriCentral Logo" className="dashboard-logo" /> AgriCentral</div>
         <nav className="coord-nav">
           {navItems.map(n => (
             <button key={n.key} className={`coord-nav-btn${tab === n.key ? ' active' : ''}`} onClick={() => setTab(n.key)}>
@@ -150,7 +151,7 @@ export default function ExtensionWorkerDashboard() {
             <div className="coord-user-name">{name}</div>
             <div className="coord-user-role">Extension Worker (AEW)</div>
           </div>
-          <button className="coord-logout-btn" onClick={logout}>🚪 Sign out</button>
+          <button className="coord-logout-btn" onClick={logout}><i className="bx bx-log-out" /> Sign out</button>
         </div>
       </aside>
 
@@ -162,9 +163,9 @@ export default function ExtensionWorkerDashboard() {
           {tab === 'Inspection' && (
             <>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 24 }}>
-                <StatCard label="Total Logs Submitted" value={myLogs.length}    icon="📝" accent="#374151" />
-                <StatCard label="Awaiting Validation"  value={unvalidated.length} icon="⏳" accent="#d97706" />
-                <StatCard label="Validated"            value={validated.length}  icon="✅" accent="#16a34a" />
+                <StatCard label="Total Logs Submitted" value={myLogs.length}    icon={<i className="bx bx-note" />} accent="#374151" />
+                <StatCard label="Awaiting Validation"  value={unvalidated.length} icon={<i className="bx bx-time" />} accent="#d97706" />
+                <StatCard label="Validated"            value={validated.length}  icon={<i className="bx bx-check-circle" />} accent="#16a34a" />
               </div>
 
               {/* Role explanation */}
@@ -201,7 +202,7 @@ export default function ExtensionWorkerDashboard() {
                     </div>
                   </div>
                 ))}
-                {equipment.length === 0 && <Empty icon="🚜" message="No equipment registered." />}
+                {equipment.length === 0 && <Empty icon={<i className="bx bx-box" />} message="No equipment registered." />}
               </div>
             </>
           )}
@@ -216,7 +217,7 @@ export default function ExtensionWorkerDashboard() {
               />
 
               {myLogs.length === 0
-                ? <Empty icon="📝" message="You have not submitted any condition logs yet." />
+                ? <Empty icon={<i className="bx bx-note" />} message="You have not submitted any condition logs yet." />
                 : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                     {myLogs.map(l => (

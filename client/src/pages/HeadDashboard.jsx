@@ -13,6 +13,7 @@ import {
   SectionTitle, DataTable, TD, Empty,
   btn, inputStyle,
 } from './Shared';
+import logo from '../assets/AgriCentral_Logo.png';
 
 // ── Issuance decision modal ────────────────────────────────────────────────
 function IssuanceModal({ request, decision, onClose, onDone }) {
@@ -102,15 +103,15 @@ export default function HeadDashboard() {
   const available   = equipment.filter(e => e.status === 'Available');
 
   const navItems = [
-    { key: 'Overview',  icon: '📊', label: 'Overview'          },
-    { key: 'Inventory', icon: '📦', label: 'Equipment Inventory'},
-    { key: 'Requests',  icon: '🚜', label: 'Equipment Requests' },
+    { key: 'Overview',  icon: <i className="bx bx-bar-chart-alt-2" />, label: 'Overview'          },
+    { key: 'Inventory', icon: <i className="bx bx-package" />, label: 'Equipment Inventory'},
+    { key: 'Requests',  icon: <i className="bx bx-list-ol" />, label: 'Equipment Requests' },
   ];
 
   return (
     <div className="coord-layout">
       <aside className="coord-sidebar">
-        <div className="coord-sidebar-brand">🌾 AgriCentral</div>
+        <div className="coord-sidebar-brand"><img src={logo} alt="AgriCentral Logo" className="dashboard-logo" /> AgriCentral</div>
         <nav className="coord-nav">
           {navItems.map(n => (
             <button key={n.key} className={`coord-nav-btn${tab === n.key ? ' active' : ''}`} onClick={() => setTab(n.key)}>
@@ -123,7 +124,7 @@ export default function HeadDashboard() {
             <div className="coord-user-name">{name}</div>
             <div className="coord-user-role">Head of Office</div>
           </div>
-          <button className="coord-logout-btn" onClick={logout}>🚪 Sign out</button>
+          <button className="coord-logout-btn" onClick={logout}><i className="bx bx-log-out" /> Sign out</button>
         </div>
       </aside>
 
@@ -136,10 +137,10 @@ export default function HeadDashboard() {
             <>
               <h2 style={{ margin: '0 0 20px', fontSize: 20, color: '#111827' }}>Head of Office Dashboard</h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 24 }}>
-                <StatCard label="Awaiting Final Approval" value={govApproved.length} icon="📬" accent="#7c3aed" />
-                <StatCard label="Equipment Types"         value={equipment.length}    icon="📦" accent="#16a34a" />
-                <StatCard label="Available Types"         value={available.length}    icon="✅" accent="#2563eb" />
-                <StatCard label="Total Issued"            value={issued.length}       icon="🚜" accent="#d97706" />
+                <StatCard label="Awaiting Final Approval" value={govApproved.length} icon={<i className="bx bx-send" />} accent="#7c3aed" />
+                <StatCard label="Equipment Types"         value={equipment.length}    icon={<i className="bx bx-package" />} accent="#16a34a" />
+                <StatCard label="Available Types"         value={available.length}    icon={<i className="bx bx-check-circle" />} accent="#2563eb" />
+                <StatCard label="Total Issued"            value={issued.length}       icon={<i className="bx bx-briefcase" />} accent="#d97706" />
               </div>
               <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 20 }}>
                 <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>Your Role</div>
@@ -158,14 +159,14 @@ export default function HeadDashboard() {
             <>
               <SectionTitle title="Equipment Inventory" sub="Read-only view — managed by the Program Coordinator" />
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 20 }}>
-                <StatCard label="Total Types"    value={equipment.length}                                          icon="📦" accent="#374151" />
-                <StatCard label="Total Units"    value={equipment.reduce((s, e) => s + e.quantity_total, 0)}      icon="🔢" accent="#2563eb" />
-                <StatCard label="Available Units" value={equipment.reduce((s, e) => s + e.quantity_available, 0)} icon="✅" accent="#16a34a" />
+                <StatCard label="Total Types"    value={equipment.length}                                          icon={<i className="bx bx-package" />} accent="#374151" />
+                <StatCard label="Total Units"    value={equipment.reduce((s, e) => s + e.quantity_total, 0)}      icon={<i className="bx bx-calculator" />} accent="#2563eb" />
+                <StatCard label="Available Units" value={equipment.reduce((s, e) => s + e.quantity_available, 0)} icon={<i className="bx bx-check-circle" />} accent="#16a34a" />
               </div>
               {/* Equipment cards grid */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 14 }}>
                 {equipment.length === 0
-                  ? <Empty icon="📦" message="No equipment found." />
+                  ? <Empty icon={<i className="bx bx-package" />} message="No equipment found." />
                   : equipment.map(item => (
                     <div key={item._id} style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, display: 'flex', gap: 14, alignItems: 'flex-start' }}>
                       <EquipImage imageId={item.imageId} name={item.equipment_name} size={56} />
@@ -194,9 +195,9 @@ export default function HeadDashboard() {
           {tab === 'Requests' && (
             <>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 24 }}>
-                <StatCard label="Awaiting Your Decision" value={govApproved.length} icon="📬" accent="#7c3aed" />
-                <StatCard label="Issued"                 value={issued.length}      icon="🚜" accent="#16a34a" />
-                <StatCard label="Rejected"               value={rejected.length}    icon="❌" accent="#dc2626" />
+                <StatCard label="Awaiting Your Decision" value={govApproved.length} icon={<i className="bx bx-send" />} accent="#7c3aed" />
+                <StatCard label="Issued"                 value={issued.length}      icon={<i className="bx bx-briefcase" />} accent="#16a34a" />
+                <StatCard label="Rejected"               value={rejected.length}    icon={<i className="bx bx-x-circle" />} accent="#dc2626" />
               </div>
 
               <SectionTitle title="Governor-Approved Requests" sub="These have passed the Governor's review — your final decision triggers issuance" />

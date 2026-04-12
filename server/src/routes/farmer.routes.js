@@ -5,6 +5,9 @@ const c = require('../controllers/farmer.controller');
 
 const coord = requireRole('Program Coordinator');
 
+// Demo seeding (no auth required for development)
+router.post  ('/seed-demo',                        c.seedDemo);
+
 router.get   ('/farmers',                          verifyToken, coord, c.getFarmers);
 router.post  ('/farmers',                          verifyToken, coord, c.createFarmer);
 router.delete('/farmers/:id',                      verifyToken, coord, c.deleteFarmer);
