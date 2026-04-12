@@ -1,6 +1,16 @@
 import axios from 'axios';
 
-const API = axios.create({ baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api' });
+const viteApiUrl = (() => {
+  try {
+    return import.meta.env.VITE_API_URL;
+  } catch {
+    return undefined;
+  }
+})();
+
+const API = axios.create({
+  baseURL: process.env.REACT_APP_API_BASE_URL || viteApiUrl || 'http://localhost:5000/api',
+});
 
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
@@ -22,5 +32,5 @@ export const headLivestockDecision = (requestId, data) => API.patch(`/livestock-
 
 export const getImageUrl = (imageId) =>
   imageId
-    ? `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/images/${imageId}`
+    ? `${process.env.REACT_APP_API_BASE_URL || viteApiUrl || 'http://localhost:5000/api'}/images/${imageId}`
     : null;
