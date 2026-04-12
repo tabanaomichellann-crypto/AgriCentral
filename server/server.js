@@ -34,6 +34,10 @@ app.use('/api', require('./src/routes/crops.routes'));
 app.use('/api/farmer-crops', require('./src/routes/farmerCrop.routes'));
 app.use('/api/crop-damages', require('./src/routes/cropDamage.routes'));
 
+app.get('/', (req, res) => {
+  res.send('AgriCentral API is running');
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
