@@ -3,6 +3,7 @@
 
 import axios from 'axios';
 
+<<<<<<< HEAD
 const viteApiUrl = (() => {
   try {
     return import.meta.env.VITE_API_URL;
@@ -14,6 +15,9 @@ const viteApiUrl = (() => {
 const API = axios.create({
   baseURL: process.env.REACT_APP_API_BASE_URL || viteApiUrl || 'http://localhost:5000/api',
 });
+=======
+const API = axios.create({ baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api' });
+>>>>>>> 1627625fdbb857dbac71bf60cb47eaf04fb33926
 
 // Attach token automatically
 API.interceptors.request.use((config) => {
