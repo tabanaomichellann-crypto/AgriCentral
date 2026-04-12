@@ -22,5 +22,5 @@ export const headLivestockDecision = (requestId, data) => API.patch(`/livestock-
 
 export const getImageUrl = (imageId) =>
   imageId
-    ? `${process.env.REACT_APP_API_BASE_URL || viteApiUrl || 'http://localhost:5000/api'}/images/${imageId}`
+    ? `${process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api'}/images/${imageId}`
     : null;
