@@ -3,4 +3,9 @@
   "buildCommand": "npm --prefix client run build",
   "outputDirectory": "client/build",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}{
+  "version": 2,
+  "buildCommand": "npm --prefix client run build",
+  "outputDirectory": "client/build",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
