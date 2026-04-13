@@ -49,3 +49,12 @@ Marinduque Provincial Agriculture Office
 
 ## 📄 License  
 This project is for academic purposes only.
+
+## For Vercel
+agri-central-qnajdonsm-tabanaomichellann-cryptos-projects.vercel.app
+
+## For Render
+https://agricentral-46o8.onrender.com
+
+## Proposal Document
+https://drive.google.com/file/d/12y6jBrXsD4nzf5M0T_8IYP1W-OpeB3ui/view?usp=drive_link
