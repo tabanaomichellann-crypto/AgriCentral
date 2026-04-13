@@ -32,9 +32,9 @@ By centralizing agricultural data, AgriCentral enables better decision-making, r
 ---
 
 ## 👥 Project Team  
-### GROUP 2 – Capstone 1
+### GROUP 2 
 
-- Beverly  
+- 
 - Dumas, James Martin R.  
 - Quezada, Beverly P.  
 - Tabanao, Michell Ann P.  
