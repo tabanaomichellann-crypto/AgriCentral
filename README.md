@@ -51,7 +51,7 @@ Marinduque Provincial Agriculture Office
 This project is for academic purposes only.
 
 ## For Vercel
-agri-central-qnajdonsm-tabanaomichellann-cryptos-projects.vercel.app
+https://vercel.com/tabanaomichellann-cryptos-projects/agri-central
 
 ## For Render
 https://agricentral-46o8.onrender.com
