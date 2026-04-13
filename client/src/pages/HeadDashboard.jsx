@@ -203,7 +203,7 @@ export default function HeadDashboard() {
               <SectionTitle title="Governor-Approved Requests" sub="These have passed the Governor's review — your final decision triggers issuance" />
               <DataTable
                 columns={['Equipment', 'Photo', 'Association', 'Qty Req.', 'Qty Avail.', 'Purpose', 'Action']}
-                emptyIcon="📬" emptyMsg="No requests awaiting your decision."
+                emptyIcon={<i className="bx bx-mail-send" />} emptyMsg="No requests awaiting your decision."
                 rows={govApproved.map(r => (
                   <>
                     <TD bold>{r.equipment_id?.equipment_name || '—'}</TD>
@@ -229,7 +229,7 @@ export default function HeadDashboard() {
               <SectionTitle title="Full Request History" sub="All requests across all stages" />
               <DataTable
                 columns={['Equipment', 'Association', 'Qty', 'Status', 'Date']}
-                emptyIcon="📋" emptyMsg="No requests yet."
+                emptyIcon={<i className="bx bx-clipboard" />} emptyMsg="No requests yet."
                 rows={requests.map(r => (
                   <>
                     <TD bold>{r.equipment_id?.equipment_name || '—'}</TD>

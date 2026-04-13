@@ -237,12 +237,12 @@ export default function CropFarmersPage() {
     <>
       {/* Enhanced Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 24 }}>
-        <StatCard label="Total Relationships" value={farmerCrops.length} icon="🌾👨‍🌾" accent="#16a34a" />
-        <StatCard label="Active Farmers" value={new Set(farmerCrops.map(fc => fc.farmerId._id)).size} icon="👨‍🌾" accent="#2563eb" />
-        <StatCard label="Crops Planted" value={new Set(farmerCrops.map(fc => fc.cropId._id)).size} icon="🌱" accent="#7c3aed" />
-        <StatCard label="Multi-Crop Farmers" value={diversificationStats.multiCrop} icon="🌾🌾" accent="#f59e0b" />
-        <StatCard label="Single-Crop Farmers" value={diversificationStats.singleCrop} icon="🌾" accent="#6b7280" />
-        <StatCard label="Max Crops/Farmer" value={diversificationStats.maxCrops} icon="🏆" accent="#dc2626" />
+        <StatCard label="Total Relationships" value={farmerCrops.length} icon={<i className="bx bx-leaf" />} accent="#16a34a" />
+        <StatCard label="Active Farmers" value={new Set(farmerCrops.map(fc => fc.farmerId._id)).size} icon={<i className="bx bx-user" />} accent="#2563eb" />
+        <StatCard label="Crops Planted" value={new Set(farmerCrops.map(fc => fc.cropId._id)).size} icon={<i className="bx bx-plant" />} accent="#7c3aed" />
+        <StatCard label="Multi-Crop Farmers" value={diversificationStats.multiCrop} icon={<i className="bx bx-git-branch" />} accent="#f59e0b" />
+        <StatCard label="Single-Crop Farmers" value={diversificationStats.singleCrop} icon={<i className="bx bx-leaf" />} accent="#6b7280" />
+        <StatCard label="Max Crops/Farmer" value={diversificationStats.maxCrops} icon={<i className="bx bx-star" />} accent="#dc2626" />
       </div>
 
       {/* View Mode Toggle */}
@@ -287,7 +287,7 @@ export default function CropFarmersPage() {
         </div>
         <div style={{ marginTop: 12, padding: 8, background: '#fef3c7', borderRadius: 6, border: '1px solid #f59e0b' }}>
           <p style={{ margin: 0, fontSize: 12, color: '#92400e', fontWeight: 500 }}>
-            💡 <strong>Harvested Percentage:</strong> Calculated as (Harvested crops / Total crops) × 100 for each farmer
+             <strong>Harvested Percentage:</strong> Calculated as (Harvested crops / Total crops) × 100 for each farmer
           </p>
         </div>
       </div>
@@ -335,11 +335,11 @@ export default function CropFarmersPage() {
           {loading && filteredFarmerCrops.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 40, color: '#6b7280' }}>Loading farmer-crop relationships...</div>
           ) : filteredFarmerCrops.length === 0 ? (
-            <Empty icon="🌾👨‍🌾" message={selectedCrop ? "No farmers plant this crop yet." : "No farmer-crop relationships found."} />
+            <Empty icon={<i className="bx bx-leaf" />} message={selectedCrop ? "No farmers plant this crop yet." : "No farmer-crop relationships found."} />
           ) : (
             <DataTable
               columns={['FARMER', 'RSBA NUMBER', 'CROP', 'PLANTING DATE', 'EXPECTED HARVEST', 'HARVESTED %', 'AREA (HA)', 'STATUS', 'ACTIONS']}
-              emptyIcon="🌾👨‍🌾"
+              emptyIcon={<i className="bx bx-leaf" />}
               emptyMsg="No relationships found."
               rows={filteredFarmerCrops.map(fc => (
                 <>
@@ -407,11 +407,11 @@ export default function CropFarmersPage() {
           {loading && farmersWithCrops.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 40, color: '#6b7280' }}>Loading farmers...</div>
           ) : farmersWithCrops.length === 0 ? (
-            <Empty icon="👨‍🌾🌾" message="No farmers with crop relationships found." />
+            <Empty icon={<i className="bx bx-user" />} message="No farmers with crop relationships found." />
           ) : (
             <DataTable
               columns={['FARMER', 'RSBA NUMBER', 'CROPS PLANTED', 'HARVESTED %', 'TOTAL AREA (HA)', 'DIVERSITY LEVEL', 'ACTIONS']}
-              emptyIcon="👨‍🌾🌾"
+              emptyIcon={<i className="bx bx-user" />}
               emptyMsg="No farmers found."
               rows={farmersWithCrops.map(farmerData => (
                 <>

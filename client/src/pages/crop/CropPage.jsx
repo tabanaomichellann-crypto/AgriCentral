@@ -142,7 +142,7 @@ export default function CropPage() {
             }}
             onClick={() => setActiveTab('Management')}
           >
-            🌾 Crop Management
+            <i className="bx bx-leaf" style={{ marginRight: 6 }}></i> Crop Management
           </button>
           <button
             style={{
@@ -151,7 +151,7 @@ export default function CropPage() {
             }}
             onClick={() => setActiveTab('Farmers')}
           >
-            👨‍🌾 Farmers by Crop
+            <i className="bx bx-group" style={{ marginRight: 6 }}></i> Farmers by Crop
           </button>
           <button
             style={{
@@ -160,7 +160,7 @@ export default function CropPage() {
             }}
             onClick={() => setActiveTab('Damage')}
           >
-            ⚠️ Damage Monitoring
+            <i className="bx bx-alert-triangle" style={{ marginRight: 6 }}></i> Damage Monitoring
           </button>
         </div>
       </div>
@@ -170,8 +170,8 @@ export default function CropPage() {
         <>
           {/* Stats */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, marginBottom: 24 }}>
-            <StatCard label="Total Crops" value={crops.length} icon="🌾" accent="#16a34a" />
-            <StatCard label="Average Growing Season" value={crops.length > 0 ? Math.round(crops.reduce((sum, c) => sum + (c.growingSeasonDays || 0), 0) / crops.length) + ' days' : '—'} icon="📅" accent="#2563eb" />
+            <StatCard label="Total Crops" value={crops.length} icon={<i className="bx bx-leaf" />} accent="#16a34a" />
+            <StatCard label="Average Growing Season" value={crops.length > 0 ? Math.round(crops.reduce((sum, c) => sum + (c.growingSeasonDays || 0), 0) / crops.length) + ' days' : '—'} icon={<i className="bx bx-calendar" />} accent="#2563eb" />
           </div>
 
           {/* Header with Add button */}

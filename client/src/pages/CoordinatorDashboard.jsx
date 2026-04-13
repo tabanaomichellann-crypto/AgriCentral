@@ -608,7 +608,7 @@ export default function CoordinatorDashboard() {
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {members.length === 0
-              ? <Empty icon="👥" message="No members yet." />
+              ? <Empty icon={<i className="bx bx-group" />} message="No members yet." />
               : members.map(m => (
                 <div key={m._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f9fafb', borderRadius: 8, padding: '10px 14px' }}>
                   <div>

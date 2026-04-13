@@ -253,7 +253,7 @@ export default function ExtensionWorkerDashboard() {
                           <div style={{ marginTop: 12 }}>
                             <a href={`/api/images/${l.proofImageId}`} target="_blank" rel="noreferrer"
                               style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#2563eb', textDecoration: 'none' }}>
-                              📷 View proof photo
+                              <i className="bx bx-camera" style={{ fontSize: 14 }}></i> View proof photo
                             </a>
                           </div>
                         )}

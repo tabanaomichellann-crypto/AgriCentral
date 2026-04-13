@@ -53,10 +53,10 @@ export default function EquipmentRequestPage() {
     <div className="coord-body">
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 24 }}>
-        <StatCard label="Total Requests" value={requests.length} icon="📋" accent="#374151" />
-        <StatCard label="Pending" value={pending.length} icon="⏳" accent="#d97706" />
-        <StatCard label="Approved" value={approved.length} icon="📤" accent="#2563eb" />
-        <StatCard label="Issued" value={issued.length} icon="✅" accent="#16a34a" />
+        <StatCard label="Total Requests" value={requests.length} icon={<i className="bx bx-clipboard" />} accent="#374151" />
+        <StatCard label="Pending" value={pending.length} icon={<i className="bx bx-time" />} accent="#d97706" />
+        <StatCard label="Approved" value={approved.length} icon={<i className="bx bx-send" />} accent="#2563eb" />
+        <StatCard label="Issued" value={issued.length} icon={<i className="bx bx-check" />} accent="#16a34a" />
       </div>
 
       <SectionTitle
@@ -74,7 +74,7 @@ export default function EquipmentRequestPage() {
 
       <DataTable
         columns={['Equipment', 'Photo', 'Qty', 'Requester', 'Status', 'Date', 'Actions']}
-        emptyIcon="📋"
+        emptyIcon={<i className="bx bx-clipboard" />}
         emptyMsg={role === 'Farmer Association Representative'
           ? 'You have not submitted any requests yet.'
           : 'No equipment requests found.'

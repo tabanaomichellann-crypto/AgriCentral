@@ -66,7 +66,7 @@
 }
 .coord-nav-btn:hover { background: #F3F4F6; color: #1A1A1A; }
 .coord-nav-btn.active { background: #ECFDF5; color: #065F46; font-weight: 600; }
-.coord-nav-icon { font-size: 16px; }
+.coord-nav-icon { display: inline-flex; align-items: center; justify-content: center; font-size: 16px; min-width: 16px; }
 .coord-sidebar-footer {
   padding: 1rem 0.75rem;
   border-top: 1px solid #E5E7EB;

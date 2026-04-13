@@ -288,10 +288,10 @@ export default function FarmerDashboard() {
           {tab === 'Requests' && (
             <>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 24 }}>
-                <StatCard label="Total Requests" value={requests.length}                                                                   icon="📋" accent="#374151" />
-                <StatCard label="Pending"        value={myPending.length}                                                                  icon="⏳" accent="#d97706" />
-                <StatCard label="Approved"       value={requests.filter(r => r.status !== 'Pending' && r.status !== 'Rejected').length}    icon="📤" accent="#2563eb" />
-                <StatCard label="Issued"         value={myIssued.length}                                                                   icon="✅" accent="#16a34a" />
+                <StatCard label="Total Requests" value={requests.length}                                                                   icon={<i className="bx bx-clipboard" />} accent="#374151" />
+                <StatCard label="Pending"        value={myPending.length}                                                                  icon={<i className="bx bx-time" />} accent="#d97706" />
+                <StatCard label="Approved"       value={requests.filter(r => r.status !== 'Pending' && r.status !== 'Rejected').length}    icon={<i className="bx bx-send" />} accent="#2563eb" />
+                <StatCard label="Issued"         value={myIssued.length}                                                                   icon={<i className="bx bx-check" />} accent="#16a34a" />
               </div>
 
               <SectionTitle
@@ -302,7 +302,7 @@ export default function FarmerDashboard() {
 
               <DataTable
                   columns={['Equipment', 'Photo', 'Qty', 'President', 'Purpose', 'Status', 'Submitted']}
-                  emptyIcon="📋" emptyMsg="You have not submitted any requests yet."
+                  emptyIcon={<i className="bx bx-clipboard" />} emptyMsg="You have not submitted any requests yet."
                   rows={requests.map(r => (
                     <>
                       <TD bold>{r.equipment_id?.equipment_name || '—'}</TD>

@@ -185,7 +185,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <button className="logout-btn" onClick={logout}>
-            <span>🚪</span> Sign out
+            <i className="bx bx-log-out" style={{ marginRight: 6 }}></i> Sign out
           </button>
         </div>
       </aside>

@@ -15,16 +15,19 @@ export default function LivestockPage() {
 
   return (
     <div className="coord-body">
-      <div className="coord-page-header">
-        <h2>Livestock Inventory</h2>
+      <div className="coord-page-header" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <i className="bx bx-paw" style={{ fontSize: 24, color: '#16a34a' }}></i>
+          <h2 style={{ margin: 0 }}>Livestock Inventory</h2>
+        </div>
         <p>Browse livestock stocks, monitor availability, and review herd details.</p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 24 }}>
-        <StatCard label="Total Breeds" value={livestock.length} icon="🐄" accent="#16a34a" />
-        <StatCard label="Available Heads" value={available.reduce((sum, item) => sum + item.quantity_available, 0)} icon="✅" accent="#2563eb" />
-        <StatCard label="Types" value={categories.length} icon="📂" accent="#7c3aed" />
-        <StatCard label="Non-Available" value={livestock.filter(item => item.status !== 'Ready_For_Dispersal').length} icon="⚠️" accent="#f59e0b" />
+        <StatCard label="Total Breeds" value={livestock.length} icon={<i className="bx bx-paw" />} accent="#16a34a" />
+        <StatCard label="Available Heads" value={available.reduce((sum, item) => sum + item.quantity_available, 0)} icon={<i className="bx bx-check-circle" />} accent="#2563eb" />
+        <StatCard label="Types" value={categories.length} icon={<i className="bx bx-folder" />} accent="#7c3aed" />
+        <StatCard label="Non-Available" value={livestock.filter(item => item.status !== 'Ready_For_Dispersal').length} icon={<i className="bx bx-alert-triangle" />} accent="#f59e0b" />
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, gap: 12, flexWrap: 'wrap' }}>
@@ -57,7 +60,7 @@ export default function LivestockPage() {
 
       <DataTable
         columns={['Photo', 'Breed', 'Type', 'Total', 'Available', 'Status', 'Action']}
-        emptyIcon="🐮"
+        emptyIcon={<i className="bx bx-paw" />}
         emptyMsg="No livestock inventory available."
         rows={filtered.map(item => (
           <>

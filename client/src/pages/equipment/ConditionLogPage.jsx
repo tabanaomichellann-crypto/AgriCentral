@@ -43,9 +43,9 @@ export default function ConditionLogPage() {
 
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 24 }}>
-        <StatCard label="Total Logs" value={logs.length} icon="📋" accent="#374151" />
-        <StatCard label="Pending Validation" value={pending.length} icon="⏳" accent="#d97706" />
-        <StatCard label="Validated" value={validated.length} icon="✅" accent="#16a34a" />
+        <StatCard label="Total Logs" value={logs.length} icon={<i className="bx bx-clipboard" />} accent="#374151" />
+        <StatCard label="Pending Validation" value={pending.length} icon={<i className="bx bx-time" />} accent="#d97706" />
+        <StatCard label="Validated" value={validated.length} icon={<i className="bx bx-check" />} accent="#16a34a" />
       </div>
 
       <SectionTitle
@@ -60,7 +60,7 @@ export default function ConditionLogPage() {
 
       <DataTable
         columns={['Equipment', 'Photo', 'Inspector', 'Condition', 'Date', 'Status', 'Actions']}
-        emptyIcon="📋"
+        emptyIcon={<i className="bx bx-clipboard" />}
         emptyMsg="No condition logs found."
         rows={logs.map(log => (
           <>

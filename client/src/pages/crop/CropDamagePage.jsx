@@ -190,24 +190,24 @@ export default function CropDamagePage() {
     <>
       {/* Enhanced Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 24 }}>
-        <StatCard label="Total Damage Reports" value={damageStats?.totalDamages || 0} icon="⚠️" accent="#dc2626" />
-        <StatCard label="Critical Cases" value={damageStats?.criticalCount || 0} icon="🚨" accent="#ef4444" />
-        <StatCard label="Resolved" value={damageStats?.resolvedCount || 0} icon="✅" accent="#10b981" />
-        <StatCard label="Avg Affected Area" value={`${damageStats?.avgAffectedArea || 0} ha`} icon="📊" accent="#3b82f6" />
+        <StatCard label="Total Damage Reports" value={damageStats?.totalDamages || 0} icon={<i className="bx bx-alert-triangle" />} accent="#dc2626" />
+        <StatCard label="Critical Cases" value={damageStats?.criticalCount || 0} icon={<i className="bx bx-error-circle" />} accent="#ef4444" />
+        <StatCard label="Resolved" value={damageStats?.resolvedCount || 0} icon={<i className="bx bx-check" />} accent="#10b981" />
+        <StatCard label="Avg Affected Area" value={`${damageStats?.avgAffectedArea || 0} ha`} icon={<i className="bx bx-bar-chart" />} accent="#3b82f6" />
       </div>
 
       {/* Damage Type & Status Guide */}
       <div style={{ marginBottom: 24, padding: 16, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
-        <h4 style={{ margin: 0, marginBottom: 12, fontSize: 14, fontWeight: 600, color: '#374151' }}>📋 Damage Classification & Status</h4>
+        <h4 style={{ margin: 0, marginBottom: 12, fontSize: 14, fontWeight: 600, color: '#374151' }}><i className="bx bx-list-ul" style={{ marginRight: 8 }}></i>Damage Classification & Status</h4>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <div>
             <p style={{ margin: '0 0 8px 0', fontSize: 12, fontWeight: 600, color: '#374151' }}>Damage Types:</p>
             <ul style={{ margin: '0', paddingLeft: 20, fontSize: 12, color: '#64748b', lineHeight: 1.8 }}>
-              <li>🐛 Pest - Insect or pest infestation</li>
-              <li>🦠 Disease - Crop disease or infection</li>
-              <li>🌪️ Weather - Storm, flood, drought damage</li>
-              <li>🌱 Nutrient - Soil nutrient deficiency</li>
-              <li>📌 Other - Other damage types</li>
+              <li><i className="bx bx-bug" style={{ marginRight: 6, color: '#16a34a' }}></i> Pest - Insect or pest infestation</li>
+              <li><i className="bx bx-virus" style={{ marginRight: 6, color: '#16a34a' }}></i> Disease - Crop disease or infection</li>
+              <li><i className="bx bx-cloud-download" style={{ marginRight: 6, color: '#16a34a' }}></i> Weather - Storm, flood, drought damage</li>
+              <li><i className="bx bx-plant" style={{ marginRight: 6, color: '#16a34a' }}></i> Nutrient - Soil nutrient deficiency</li>
+              <li><i className="bx bx-pin" style={{ marginRight: 6, color: '#16a34a' }}></i> Other - Other damage types</li>
             </ul>
           </div>
           <div>
@@ -285,11 +285,11 @@ export default function CropDamagePage() {
       {loading && filteredDamages.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 40, color: '#6b7280' }}>Loading damage records...</div>
       ) : filteredDamages.length === 0 ? (
-        <Empty icon="✅" message="No damage reports found." />
+        <Empty icon={<i className="bx bx-check" />} message="No damage reports found." />
       ) : (
         <DataTable
           columns={['FARMER', 'CROP', 'DAMAGE TYPE', 'SEVERITY', 'REPORTED DATE', 'STATUS', 'AFFECTED AREA', 'ACTIONS']}
-          emptyIcon="⚠️"
+          emptyIcon={<i className="bx bx-alert-triangle" />}
           emptyMsg="No damages found."
           rows={filteredDamages.map(dmg => (
             <>
@@ -391,11 +391,11 @@ export default function CropDamagePage() {
                 required
               >
                 <option value="">Select damage type</option>
-                <option value="Pest">🐛 Pest</option>
-                <option value="Disease">🦠 Disease</option>
-                <option value="Weather">🌪️ Weather</option>
-                <option value="Nutrient">🌱 Nutrient</option>
-                <option value="Other">📌 Other</option>
+                <option value="Pest"><i className="bx bx-bug"></i> Pest</option>
+                <option value="Disease"><i className="bx bx-virus"></i> Disease</option>
+                <option value="Weather"><i className="bx bx-cloud-download"></i> Weather</option>
+                <option value="Nutrient"><i className="bx bx-plant"></i> Nutrient</option>
+                <option value="Other"><i className="bx bx-pin"></i> Other</option>
               </select>
             </Field>
 

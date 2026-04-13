@@ -32,9 +32,9 @@ export default function EquipmentPage() {
 
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 24 }}>
-        <StatCard label="Total Equipment" value={equipment.length} icon="🚜" accent="#16a34a" />
-        <StatCard label="Available Now" value={available.length} icon="✅" accent="#2563eb" />
-        <StatCard label="Categories" value={categories.length} icon="📂" accent="#7c3aed" />
+        <StatCard label="Total Equipment" value={equipment.length} icon={<i className="bx bx-tractor" />} accent="#16a34a" />
+        <StatCard label="Available Now" value={available.length} icon={<i className="bx bx-check-circle" />} accent="#2563eb" />
+        <StatCard label="Categories" value={categories.length} icon={<i className="bx bx-folder" />} accent="#7c3aed" />
       </div>
 
       {/* Category filter */}
@@ -58,7 +58,7 @@ export default function EquipmentPage() {
 
       {/* Equipment grid */}
       {filtered.length === 0 ? (
-        <Empty icon="🚜" message="No equipment available in this category." />
+        <Empty icon={<i className="bx bx-tractor" />} message="No equipment available in this category." />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 16 }}>
           {filtered.map(item => (

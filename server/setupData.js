@@ -81,16 +81,16 @@ async function setup() {
     ]);
 
     console.log('\n═══════════════════════════════════════════════════════════════');
-    console.log('✅ SETUP COMPLETED!');
+    console.log('[✓] SETUP COMPLETED!');
     console.log('═══════════════════════════════════════════════════════════════');
-    console.log('\n📊 Created:');
+    console.log('\n[INFO] Created:');
     console.log(`   • 1 Coordinator account`);
     console.log(`   • 1 Association`);
     console.log(`   • ${farmers.length} Farmers`);
-    console.log('\n🔐 Login as Coordinator:');
+    console.log('\n[AUTH] Login as Coordinator:');
     console.log('   Username: coordinator');
     console.log('   Password: Coordinator@1234');
-    console.log('\n💡 Refresh your browser and login to see the farmers!');
+    console.log('\n[TIP] Refresh your browser and login to see the farmers!');
     console.log('═══════════════════════════════════════════════════════════════\n');
 
     process.exit(0);

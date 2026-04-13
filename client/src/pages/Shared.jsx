@@ -96,7 +96,7 @@ export function ImagePicker({ value, onChange, label = 'Photo' }) {
           cursor: 'pointer', padding: '7px 14px', background: '#f0fdf4',
           border: '1px dashed #86efac', borderRadius: 8, fontSize: 13, color: '#166534',
         }}>
-          {preview ? '📷 Change photo' : '📷 Upload photo'}
+          {preview ? <span><i className="bx bx-camera" style={{ marginRight: 6 }}></i>Change photo</span> : <span><i className="bx bx-camera" style={{ marginRight: 6 }}></i>Upload photo</span>}
           <input type="file" accept="image/*" onChange={handleChange} style={{ display: 'none' }} />
         </label>
         {preview && (
@@ -204,10 +204,10 @@ export function SectionTitle({ title, sub, action }) {
 }
 
 // Empty state 
-export function Empty({ icon = '📋', message = 'No data found.' }) {
+export function Empty({ icon = <i className="bx bx-inbox" style={{ fontSize: 40, display: 'inline-block' }} />, message = 'No data found.' }) {
   return (
     <div style={{ textAlign: 'center', padding: '48px 0', color: '#9ca3af' }}>
-      <div style={{ fontSize: 40, marginBottom: 10 }}>{icon}</div>
+      <div style={{ fontSize: 40, marginBottom: 10 }}>{typeof icon === 'string' ? icon : icon}</div>
       <div style={{ fontSize: 14 }}>{message}</div>
     </div>
   );
