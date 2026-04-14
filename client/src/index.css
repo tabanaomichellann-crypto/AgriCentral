@@ -1,5 +1,9 @@
-* {
+html, body, button, input, textarea, select, option {
   font-family: 'Poppins', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {

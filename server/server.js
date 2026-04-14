@@ -28,6 +28,7 @@ app.use('/api/equipment', require('./src/routes/equipment.routes'));
 app.use('/api/equipment-requests', require('./src/routes/equipmentRequest.routes'));
 app.use('/api/equipment-condition-logs', require('./src/routes/conditionLog.routes'));
 app.use('/api/livestock', require('./src/routes/livestock.routes'));
+app.use('/api', require('./src/routes/livestockRequest.routes'));
 app.use('/api', require('./src/routes/crops.routes'));
 app.use('/api/farmer-crops', require('./src/routes/farmerCrop.routes'));
 app.use('/api/crop-damages', require('./src/routes/cropDamage.routes'));
