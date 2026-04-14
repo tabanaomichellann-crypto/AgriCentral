@@ -28,6 +28,8 @@ api.interceptors.response.use(
 
 // Auth
 export const loginUser = (data) => api.post('/auth/login', data);
+export const registerFarmerAssociation = (data) =>
+  api.post('/auth/register-farmer-association', data);
 
 // User Management (Admin only)
 export const getUsers         = ()       => api.get('/users');

@@ -160,11 +160,35 @@ select:-webkit-autofill {
   border: 1px solid #fecaca;
 }
 
+.auth-success {
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
 .auth-hint {
   text-align: center;
   margin-top: 18px;
   font-size: 12px;
   color: #9ca3af;
+}
+
+.auth-hint-action {
+  margin-top: 10px;
+}
+
+.auth-hint-action a {
+  color: #166534;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-hint-action a:hover {
+  text-decoration: underline;
 }
 
 /* Responsive */

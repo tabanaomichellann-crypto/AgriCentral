@@ -1,13 +1,20 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createEquipmentRequest } from '../services/equipmentApi';
+import '../styles/CoordinatorDashboard.css';
+import '../styles/FarmerDashboard.css';
 import {
   useEquipment, useRequests,
   Modal, Field, StatusBadge, StatCard, EquipImage,
   SectionTitle, DataTable, TD, Empty,
+  getEquipmentDisplayImage,
   btn, inputStyle,
 } from './Shared';
 import logo from '../assets/AgriCentral_Logo.png';
+
+function getInitials(name = '') {
+  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+}
 
 // Request form modal 
 function RequestModal({ equipment, preselect, onClose, onDone }) {
@@ -177,12 +184,12 @@ export default function FarmerDashboard() {
   const myIssued  = requests.filter(r => r.status === 'Issued');
 
   const navItems = [
-    { key: 'Equipment', icon: <i className="bx bx-tractor" />, label: 'Browse Equipment' },
-    { key: 'Requests',  icon: <i className="bx bx-clipboard" />, label: 'My Requests'      },
+    { key: 'Equipment', icon: <i className="bx bx-package" />, label: 'Browse Equipment' },
+    { key: 'Requests',  icon: <i className="bx bx-receipt" />, label: 'My Requests'      },
   ];
 
   return (
-    <div className="coord-layout">
+    <div className="coord-layout farmer-dashboard">
       <aside className="coord-sidebar">
         <div className="coord-sidebar-brand"><img src={logo} alt="AgriCentral Logo" className="dashboard-logo" /> AgriCentral</div>
         <nav className="coord-nav">
@@ -197,10 +204,13 @@ export default function FarmerDashboard() {
           ))}
         </nav>
         <div className="coord-sidebar-footer">
-          <div className="coord-user-info">
-            <div className="coord-user-name">{name}</div>
-            <div className="coord-user-role">Assoc. Representative</div>
-            <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>{assocName}</div>
+          <div className="coord-user-card">
+            <div className="coord-user-avatar">{getInitials(name || 'Farmer')}</div>
+            <div className="coord-user-meta">
+              <div className="coord-user-name">{name}</div>
+              <div className="coord-user-role">Assoc. Representative</div>
+              <div className="coord-user-association">{assocName}</div>
+            </div>
           </div>
           <button className="coord-logout-btn" onClick={logout}><i className="bx bx-log-out" /> Sign out</button>
         </div>
@@ -247,30 +257,37 @@ export default function FarmerDashboard() {
               {filtered.length === 0
                 ? <Empty icon={<i className="bx bx-box" />} message="No equipment available in this category." />
                 : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 16 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 16 }}>
                     {filtered.map(item => (
                       <div
                         key={item._id}
                         style={{
-                          background: '#fff', border: '1px solid #e5e7eb', borderRadius: 14,
-                          overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.2s',
+                          background: '#ffffff', border: '2px solid #16a34a', borderRadius: 16,
+                          overflow: 'hidden', cursor: 'pointer', transition: 'all 0.3s ease',
+                          boxShadow: '0 2px 8px rgba(22, 163, 74, 0.08)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          height: '100%',
+                          minHeight: '340px',
                         }}
-                        onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)'}
-                        onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+                        onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 24px rgba(22, 163, 74, 0.15)'}
+                        onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(22, 163, 74, 0.08)'}
                         onClick={() => setDetailItem(item)}
                       >
-                        <div style={{ height: 140, background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                          {item.imageId
-                            ? <img src={`/api/images/${item.imageId}`} alt={item.equipment_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            : <i className="bx bx-tractor" style={{ fontSize: 56, color: '#9ca3af' }} />}
+                        <div style={{ height: 140, background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderBottom: '2px solid #d1fae5' }}>
+                          <img
+                            src={getEquipmentDisplayImage(item)}
+                            alt={item.equipment_name}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
                         </div>
-                        <div style={{ padding: 14 }}>
-                          <div style={{ fontWeight: 700, fontSize: 14, color: '#111827', marginBottom: 4 }}>{item.equipment_name}</div>
-                          <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 10 }}>{item.category}</div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: 13, color: '#16a34a', fontWeight: 700 }}>{item.quantity_available} available</span>
+                        <div style={{ padding: '16px 14px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                          <div style={{ fontWeight: 700, fontSize: 14, color: '#0f766e', marginBottom: 5, lineHeight: 1.3 }}>{item.equipment_name}</div>
+                          <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 10 }}>{item.category}</div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', gap: 8 }}>
+                            <span style={{ fontSize: 13, color: '#047857', fontWeight: 700 }}>{item.quantity_available} available</span>
                             <button
-                              style={btn.outline}
+                              style={{ ...btn.outline, padding: '6px 12px', fontSize: 12 }}
                               onClick={e => { e.stopPropagation(); openRequest(item); }}
                             >
                               Request

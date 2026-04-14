@@ -142,7 +142,7 @@ export default function CropPage() {
             }}
             onClick={() => setActiveTab('Management')}
           >
-            <i className="bx bx-leaf" style={{ marginRight: 6 }}></i> Crop Management
+            <i className="bx bxs-leaf" style={{ marginRight: 6 }}></i> Crop Management
           </button>
           <button
             style={{
@@ -151,7 +151,7 @@ export default function CropPage() {
             }}
             onClick={() => setActiveTab('Farmers')}
           >
-            <i className="bx bx-group" style={{ marginRight: 6 }}></i> Farmers by Crop
+            <i className="bx bx-user" style={{ marginRight: 6 }}></i> Farmers by Crop
           </button>
           <button
             style={{
@@ -160,7 +160,7 @@ export default function CropPage() {
             }}
             onClick={() => setActiveTab('Damage')}
           >
-            <i className="bx bx-alert-triangle" style={{ marginRight: 6 }}></i> Damage Monitoring
+            <i className="bx bx-error-circle" style={{ marginRight: 6 }}></i> Damage Monitoring
           </button>
         </div>
       </div>
@@ -193,11 +193,11 @@ export default function CropPage() {
           {loading && crops.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 40, color: '#6b7280' }}>Loading crops...</div>
           ) : crops.length === 0 ? (
-            <Empty icon="🌾" message="No crops registered yet." />
+            <Empty icon={<i className="bx bxs-leaf" style={{ fontSize: 24 }} />} message="No crops registered yet." />
           ) : (
             <DataTable
               columns={['NAME', 'SCIENTIFIC NAME', 'GROWING SEASON', 'PH RANGE', 'WATER NEED', 'TEMPERATURE', 'ACTIONS']}
-              emptyIcon="🌾"
+              emptyIcon={<i className="bx bxs-leaf" style={{ fontSize: 24 }} />}
               emptyMsg="No crops found."
               rows={crops.map(crop => (
                 <>

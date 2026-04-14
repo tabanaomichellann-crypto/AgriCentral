@@ -1,0 +1,26 @@
+.farmer-dashboard .coord-nav-icon i {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.farmer-dashboard .coord-logout-btn i {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.farmer-dashboard .coord-user-card {
+  align-items: flex-start;
+}
+
+.farmer-dashboard .coord-user-meta {
+  min-width: 0;
+}
+
+.farmer-dashboard .coord-user-association {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

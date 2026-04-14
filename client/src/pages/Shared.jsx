@@ -71,6 +71,46 @@ export function EquipImage({ imageId, name, size = 48 }) {
   );
 }
 
+function getCategoryEmoji(category = '') {
+  const key = category.toLowerCase();
+  if (key.includes('water')) return '💧';
+  if (key.includes('sprayer')) return '🧴';
+  if (key.includes('thresher')) return '🌾';
+  if (key.includes('transplanter')) return '🌱';
+  if (key.includes('rice mill')) return '🍚';
+  if (key.includes('combine')) return '🚜';
+  if (key.includes('harvester')) return '🚜';
+  if (key.includes('seed drill')) return '🌾';
+  if (key.includes('tractor')) return '🚜';
+  return '🛠️';
+}
+
+export function getEquipmentDisplayImage(item) {
+  const uploaded = getImageUrl(item?.imageId);
+  if (uploaded) return uploaded;
+
+  const category = item?.category || 'Equipment';
+  const name = item?.equipment_name || 'AgriCentral Equipment';
+  const glyph = getCategoryEmoji(category);
+
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='640' height='360' viewBox='0 0 640 360'>
+    <defs>
+      <linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
+        <stop offset='0%' stop-color='#e8f5e9'/>
+        <stop offset='100%' stop-color='#d1fae5'/>
+      </linearGradient>
+    </defs>
+    <rect width='640' height='360' fill='url(#g)'/>
+    <rect x='40' y='40' width='560' height='280' rx='20' fill='#ffffff' opacity='0.9'/>
+    <circle cx='145' cy='180' r='58' fill='#ecfdf5' stroke='#22c55e' stroke-width='4'/>
+    <text x='145' y='194' text-anchor='middle' font-size='42' font-family='Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif' fill='#166534'>${glyph}</text>
+    <text x='230' y='168' font-size='30' font-family='Poppins, Arial, sans-serif' font-weight='700' fill='#111827'>${name}</text>
+    <text x='230' y='208' font-size='20' font-family='Poppins, Arial, sans-serif' fill='#6b7280'>${category}</text>
+  </svg>`;
+
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
 // ── Image file picker with preview ────────────────────────────────────────
 export function ImagePicker({ value, onChange, label = 'Photo' }) {
   const [preview, setPreview] = useState(null);

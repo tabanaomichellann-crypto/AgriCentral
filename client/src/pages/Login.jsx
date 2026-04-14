@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '../services/api';
 import '../styles/Auth.css';
 
@@ -76,6 +76,9 @@ function Login() {
           </form>
 
           <p className="auth-hint">Access is provided by the system administrator.</p>
+          <p className="auth-hint auth-hint-action">
+            Farmer Association Representative? <Link to="/register-farmer-association">Register here</Link>
+          </p>
         </div>
       </div>
 

@@ -253,20 +253,20 @@ export default function CropFarmersPage() {
             style={{ ...btn.ghost, ...(viewMode === 'crop' ? { background: '#f0fdf4', color: '#16a34a', borderColor: '#86efac' } : {}) }}
             onClick={() => setViewMode('crop')}
           >
-            Crops
+            <i className="bx bxs-leaf" style={{ marginRight: 6 }}></i> Crops
           </button>
           <button
             style={{ ...btn.ghost, ...(viewMode === 'farmer' ? { background: '#f0fdf4', color: '#16a34a', borderColor: '#86efac' } : {}) }}
             onClick={() => setViewMode('farmer')}
           >
-            Farmers
+            <i className="bx bx-user" style={{ marginRight: 6 }}></i> Farmers
           </button>
         </div>
       </div>
 
       {/* Status Guide */}
       <div style={{ marginBottom: 24, padding: 16, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
-        <h4 style={{ margin: 0, marginBottom: 12, fontSize: 14, fontWeight: 600, color: '#374151' }}>📋 Crop Status Guide</h4>
+        <h4 style={{ margin: 0, marginBottom: 12, fontSize: 14, fontWeight: 600, color: '#374151' }}><i className="bx bx-notepad" style={{ marginRight: 8 }}></i>Crop Status Guide</h4>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <StatusBadge status="Planted" />

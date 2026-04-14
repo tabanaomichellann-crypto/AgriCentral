@@ -1,11 +1,15 @@
+import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
+import RegisterFarmerAssociation from './pages/RegisterFarmerAssociation';
 import AdminDashboard from './pages/AdminDashboard';
 import CoordinatorDashboard from './pages/CoordinatorDashboard';
 import ExtensionWorkerDashboard from './pages/ExtensionWorkerDashboard';
 import HeadDashboard from './pages/HeadDashboard';
 import FarmerDashboard from './pages/FarmerDashboard';
-import GovernorDashboard from './pages/GovernorDashboard'; 
+import GovernorDashboard from './pages/GovernorDashboard';
+import LivestockPage from './pages/livestock/LivestockPage';
+import SplashScreen from './pages/SplashScreen';
 
 // Redirect user based on role
 function getDashboardByRole(role) {
@@ -36,14 +40,28 @@ function PrivateRoute({ children, allowedRole }) {
 }
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
   const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 6000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (showSplash) {
+    return <SplashScreen />;
+  }
 
   return (
     <Router>
       <Routes>
         {/* Public Route */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register-farmer-association" element={<RegisterFarmerAssociation />} />
 
         {/* Auto redirect root based on role */}
         <Route path="/" element={
@@ -60,6 +78,12 @@ function App() {
         <Route path="/coordinator" element={
           <PrivateRoute allowedRole="Program Coordinator">
             <CoordinatorDashboard />
+          </PrivateRoute>
+        } />
+
+        <Route path="/coordinator/livestock" element={
+          <PrivateRoute allowedRole="Program Coordinator">
+            <LivestockPage />
           </PrivateRoute>
         } />
 

@@ -28,7 +28,6 @@ body {
   overflow: hidden;
 }
 
-/* decorative circles */
 .sidebar::before {
   content: '';
   position: absolute;
@@ -48,7 +47,6 @@ body {
   pointer-events: none;
 }
 
-/* Brand */
 .sidebar-brand {
   display: flex;
   align-items: center;
@@ -71,7 +69,6 @@ body {
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
-/* Section label */
 .nav-section-label {
   font-size: 10px;
   font-weight: 600;
@@ -127,11 +124,11 @@ body {
 }
 .nav-icon { font-size: 15px; }
 
-/* Footer */
+/* Footer — added background: #E4F2E8 */
 .sidebar-footer {
   padding: 12px 10px;
   border-top: 1px solid rgba(27, 58, 45, 0.08);
-  background: rgba(255,255,255,0.75);
+  background: #E4F2E8;
 }
 
 .user-card {
@@ -196,11 +193,11 @@ body {
   background: #fcfcfc;
 }
 
-/* Topbar */
+/* Topbar — border-bottom changed to 2px solid #4A9960 */
 .topbar {
   height: 56px;
   background: #FFFFFF;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 2px solid #4A9960;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -272,7 +269,6 @@ body {
   font-size: 60px;
   opacity: 0.07;
   pointer-events: none;
-  /* Decorative element removed for minimalist design */
 }
 .page-banner-text h2 {
   font-size: 20px;
@@ -566,4 +562,3 @@ tbody tr:hover td { background: #F8FBF8; }
   background: #fff;
   box-shadow: 0 0 0 3px rgba(27,58,45,0.08);
 }
-
