@@ -9,7 +9,7 @@ export function getApiBaseUrl() {
   }
 
   if (typeof window !== 'undefined') {
-    const { hostname, origin } = window.location;
+    const { hostname } = window.location;
 
     if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1') {
       return DEFAULT_PRODUCTION_API_BASE_URL;
