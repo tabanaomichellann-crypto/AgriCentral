@@ -35,7 +35,11 @@ function Login() {
       navigate(ROLE_ROUTES[role] ?? null);
       if (!ROLE_ROUTES[role]) setError('Unknown role. Please contact the administrator.');
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid username or password.');
+      if (!err.response) {
+        setError('Cannot reach the server. Please check your API URL or backend status.');
+      } else {
+        setError(err.response?.data?.message || 'Invalid username or password.');
+      }
     } finally {
       setLoading(false);
     }

@@ -35,48 +35,219 @@ function getInitials(name = '') {
 
 const PROOF_TYPES = ['Ownership', 'Tenancy', 'Agreement'];
 
-function buildReportHtml({ farmers, assocs, crops, equipment, requests, logs, livestock, livestockRequests }) {
-  const formatDate = (value) => value ? new Date(value).toLocaleDateString() : '';
-  const row = (cells) => `<tr>${cells.map(cell => `<td>${cell || ''}</td>`).join('')}</tr>`;
-  const section = (title, headers, rows) => `
-    <section style="margin-bottom: 24px;">
-      <h2 style="font-size:18px; margin-bottom:12px; color:#111827;">${title}</h2>
-      <table style="width:100%; border-collapse:collapse; font-size:12px;">
-        <thead>
-          <tr>${headers.map(h => `<th style="text-align:left; padding:8px 10px; border-bottom:1px solid #e5e7eb; background:#f9fafb; color:#4b5563;">${h}</th>`).join('')}</tr>
-        </thead>
-        <tbody>${rows.join('')}</tbody>
-      </table>
-    </section>`;
+function buildStyledReport({ title, subtitle, accent, softAccent, sections }) {
+  const safeAccent = accent || '#2b6f57';
+  const safeSoftAccent = softAccent || '#e6f4eb';
+  const createdAt = new Date().toLocaleString();
+  const sectionHtml = sections.map((section) => {
+    const rows = section.rows.length
+      ? section.rows.map((cells) => `<tr>${cells.map(cell => `<td>${cell || ''}</td>`).join('')}</tr>`).join('')
+      : `<tr><td colspan="${section.headers.length}" class="empty">No records found.</td></tr>`;
+
+    return `
+      <section class="report-section">
+        <div class="section-head">
+          <h2>${section.title}</h2>
+          <span>${section.rows.length} rows</span>
+        </div>
+        <table>
+          <thead>
+            <tr>${section.headers.map(h => `<th>${h}</th>`).join('')}</tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </section>
+    `;
+  }).join('');
 
   return `<!doctype html>
 <html>
 <head>
   <meta charset="utf-8">
-  <title>AgriCentral Coordinator Report</title>
+  <title>${title}</title>
   <style>
-    body { font-family: 'Poppins', sans-serif; color: #111827; margin: 24px; }
-    h1 { font-size: 24px; margin-bottom: 6px; }
-    p { font-size: 13px; color: #6b7280; margin-top: 0; }
-    table { width: 100%; margin-top: 10px; }
-    td { padding: 8px 10px; vertical-align: top; border-bottom: 1px solid #e5e7eb; }
-    th { font-weight: 700; }
-    .meta { margin-bottom: 24px; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: #17212b;
+      background: #f5f8fb;
+      font-family: 'Poppins', 'Segoe UI', Tahoma, sans-serif;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 24px 34px;
+    }
+    .hero {
+      border: 1px solid #dce8e4;
+      border-radius: 18px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+      background: linear-gradient(130deg, ${safeSoftAccent} 0%, #ffffff 60%);
+      box-shadow: 0 12px 28px rgba(35, 62, 78, 0.08);
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.2;
+      color: ${safeAccent};
+    }
+    .hero p {
+      margin: 10px 0 0;
+      color: #526170;
+      font-size: 13px;
+    }
+    .strip {
+      margin-top: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #304355;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid #d8e5ef;
+      border-left: 4px solid ${safeAccent};
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-weight: 500;
+    }
+    .report-section {
+      margin: 0 0 16px;
+      background: #ffffff;
+      border: 1px solid #dbe6ef;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 6px 14px rgba(30, 58, 83, 0.06);
+      page-break-inside: avoid;
+    }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 14px;
+      border-bottom: 1px solid #e3edf5;
+      background: #f9fcff;
+    }
+    .section-head h2 {
+      margin: 0;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      color: #1d3347;
+      text-transform: uppercase;
+    }
+    .section-head span {
+      font-size: 11px;
+      color: #577189;
+      font-weight: 600;
+      background: #eaf2f9;
+      border-radius: 999px;
+      padding: 4px 9px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    thead th {
+      background: #f4f8fc;
+      color: #48637a;
+      text-align: left;
+      padding: 9px 10px;
+      border-bottom: 1px solid #e2ebf2;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #edf2f7;
+      color: #243544;
+      vertical-align: top;
+    }
+    tbody tr:nth-child(odd) td {
+      background: #fbfdff;
+    }
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+    .empty {
+      text-align: center;
+      color: #6a7f92;
+      padding: 16px;
+    }
+    @media print {
+      body { background: #ffffff; }
+      .container { max-width: none; padding: 0; }
+      .hero { box-shadow: none; border-color: #cfd8df; }
+      .report-section { box-shadow: none; border-color: #d7e0e7; }
+    }
   </style>
 </head>
 <body>
-  <h1>AgriCentral Coordinator Masterlist</h1>
-  <p class="meta">Generated on ${new Date().toLocaleString()} — includes all coordinator dashboard records.</p>
-  ${section('Farmers', ['RSBA Number', 'Name', 'Contact', 'Address', 'Proof', 'Registered At'], farmers.map(f => row([f.rsbaNumber, `${f.firstName} ${f.lastName}`, f.contactNumber || '', f.address || '', f.proofOfOwnershipType || '', formatDate(f.registeredAt)])))}
-  ${section('Associations', ['Name', 'Address', 'President', 'Members', 'Registered At'], assocs.map(a => row([a.associationName, a.address || '', a.presidentName || a.presidentUserId?.fullName || '', a.memberCount ?? 0, formatDate(a.registeredAt)])))}
-  ${section('Crops', ['Crop', 'Category', 'Area Planted', 'Yield Estimate', 'Status'], crops.map(crop => row([crop.crop_name || crop.name || '', crop.category || '', crop.area_planted || '', crop.yield_estimate || '', crop.status || ''])))}
-  ${section('Equipment Inventory', ['Equipment', 'Category', 'Total', 'Available', 'Status'], equipment.map(item => row([item.equipment_name, item.category || '', item.quantity_total, item.quantity_available, item.status])))}
-  ${section('Equipment Requests', ['Association', 'Equipment', 'Qty', 'Purpose', 'Status', 'Requested At'], requests.map(r => row([r.association_id?.associationName || '', r.equipment_id?.equipment_name || '', r.quantity_requested, r.purpose || '', r.status, formatDate(r.requested_at)])))}
-  ${section('Condition Logs', ['Equipment', 'Recorded By', 'Condition', 'Remarks', 'Proof Image ID', 'Recorded At', 'Validated'], logs.map(l => row([l.equipment_id?.equipment_name || '', l.recorded_by?.fullName || '', l.condition_status || '', l.remarks || '', l.proofImageId || '', formatDate(l.recorded_at), l.validated ? 'Yes' : 'No'])))}
-  ${section('Livestock Inventory', ['Breed', 'Type', 'Total', 'Available', 'Status', 'Notes'], livestock.map(item => row([item.name, item.type || '', item.quantity_total, item.quantity_available, item.status, item.notes || ''])))}
-  ${section('Livestock Requests', ['Livestock', 'Type', 'Qty', 'Requester', 'Association', 'Status', 'Requested At', 'Purpose'], livestockRequests.map(r => row([r.livestock_id?.name || '', r.livestock_id?.type || '', r.quantity_requested, r.farmer_id?.fullName || '', r.association_id?.associationName || '', r.status, formatDate(r.createdAt), r.purpose || ''])))}
+  <div class="container">
+    <header class="hero">
+      <h1>${title}</h1>
+      <p>${subtitle}</p>
+      <div class="strip">Generated on ${createdAt}</div>
+    </header>
+    ${sectionHtml}
+  </div>
 </body>
 </html>`;
+}
+
+function buildReportHtml({ farmers, assocs, crops, equipment, requests, logs, livestock, livestockRequests }) {
+  const formatDate = (value) => value ? new Date(value).toLocaleDateString() : '';
+  return buildStyledReport({
+    title: 'AgriCentral Coordinator Masterlist',
+    subtitle: 'Consolidated records across farmers, associations, crops, equipment, livestock, requests, and condition logs.',
+    accent: '#1f6f5f',
+    softAccent: '#e6f5ef',
+    sections: [
+      {
+        title: 'Farmers',
+        headers: ['RSBA Number', 'Name', 'Contact', 'Address', 'Proof', 'Registered At'],
+        rows: farmers.map(f => [f.rsbaNumber, `${f.firstName} ${f.lastName}`, f.contactNumber || '', f.address || '', f.proofOfOwnershipType || '', formatDate(f.registeredAt)]),
+      },
+      {
+        title: 'Associations',
+        headers: ['Name', 'Address', 'President', 'Members', 'Registered At'],
+        rows: assocs.map(a => [a.associationName, a.address || '', a.presidentName || a.presidentUserId?.fullName || '', a.memberCount ?? 0, formatDate(a.registeredAt)]),
+      },
+      {
+        title: 'Crops',
+        headers: ['Crop', 'Category', 'Area Planted', 'Yield Estimate', 'Status'],
+        rows: crops.map(crop => [crop.crop_name || crop.name || '', crop.category || '', crop.area_planted || '', crop.yield_estimate || '', crop.status || '']),
+      },
+      {
+        title: 'Equipment Inventory',
+        headers: ['Equipment', 'Category', 'Total', 'Available', 'Status'],
+        rows: equipment.map(item => [item.equipment_name, item.category || '', item.quantity_total, item.quantity_available, item.status]),
+      },
+      {
+        title: 'Equipment Requests',
+        headers: ['Association', 'Equipment', 'Qty', 'Purpose', 'Status', 'Requested At'],
+        rows: requests.map(r => [r.association_id?.associationName || '', r.equipment_id?.equipment_name || '', r.quantity_requested, r.purpose || '', r.status, formatDate(r.requested_at)]),
+      },
+      {
+        title: 'Condition Logs',
+        headers: ['Equipment', 'Recorded By', 'Condition', 'Remarks', 'Proof Image ID', 'Recorded At', 'Validated'],
+        rows: logs.map(l => [l.equipment_id?.equipment_name || '', l.recorded_by?.fullName || '', l.condition_status || '', l.remarks || '', l.proofImageId || '', formatDate(l.recorded_at), l.validated ? 'Yes' : 'No']),
+      },
+      {
+        title: 'Livestock Inventory',
+        headers: ['Breed', 'Type', 'Total', 'Available', 'Status', 'Notes'],
+        rows: livestock.map(item => [item.name, item.type || '', item.quantity_total, item.quantity_available, item.status, item.notes || '']),
+      },
+      {
+        title: 'Livestock Requests',
+        headers: ['Livestock', 'Type', 'Qty', 'Requester', 'Association', 'Status', 'Requested At', 'Purpose'],
+        rows: livestockRequests.map(r => [r.livestock_id?.name || '', r.livestock_id?.type || '', r.quantity_requested, r.farmer_id?.fullName || '', r.association_id?.associationName || '', r.status, formatDate(r.createdAt), r.purpose || '']),
+      },
+    ],
+  });
 }
 
 function openReportWindow(html) {
@@ -90,189 +261,101 @@ function openReportWindow(html) {
 
 function buildFarmersReport(farmers) {
   const formatDate = (value) => value ? new Date(value).toLocaleDateString() : '';
-  const row = (cells) => `<tr>${cells.map(cell => `<td>${cell || ''}</td>`).join('')}</tr>`;
-  const section = (title, headers, rows) => `
-    <section style="margin-bottom: 24px;">
-      <h2 style="font-size:18px; margin-bottom:12px; color:#111827;">${title}</h2>
-      <table style="width:100%; border-collapse:collapse; font-size:12px;">
-        <thead>
-          <tr>${headers.map(h => `<th style="text-align:left; padding:8px 10px; border-bottom:1px solid #e5e7eb; background:#f9fafb; color:#4b5563;">${h}</th>`).join('')}</tr>
-        </thead>
-        <tbody>${rows.join('')}</tbody>
-      </table>
-    </section>`;
-
-  return `<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>AgriCentral Farmers Report</title>
-  <style>
-    body { font-family: 'Poppins', sans-serif; color: #111827; margin: 24px; }
-    h1 { font-size: 24px; margin-bottom: 6px; }
-    p { font-size: 13px; color: #6b7280; margin-top: 0; }
-    table { width: 100%; margin-top: 10px; }
-    td { padding: 8px 10px; vertical-align: top; border-bottom: 1px solid #e5e7eb; }
-    th { font-weight: 700; }
-    .meta { margin-bottom: 24px; }
-  </style>
-</head>
-<body>
-  <h1>AgriCentral Farmers Report</h1>
-  <p class="meta">Generated on ${new Date().toLocaleString()}.</p>
-  ${section('Farmers', ['RSBA Number', 'Name', 'Contact', 'Address', 'Proof', 'Registered At'], farmers.map(f => row([f.rsbaNumber, `${f.firstName} ${f.lastName}`, f.contactNumber || '', f.address || '', f.proofOfOwnershipType || '', formatDate(f.registeredAt)])))}
-</body>
-</html>`;
+  return buildStyledReport({
+    title: 'AgriCentral Farmers Report',
+    subtitle: 'Registered farmers and ownership profile details.',
+    accent: '#0f766e',
+    softAccent: '#dcf7f5',
+    sections: [
+      {
+        title: 'Farmers',
+        headers: ['RSBA Number', 'Name', 'Contact', 'Address', 'Proof', 'Registered At'],
+        rows: farmers.map(f => [f.rsbaNumber, `${f.firstName} ${f.lastName}`, f.contactNumber || '', f.address || '', f.proofOfOwnershipType || '', formatDate(f.registeredAt)]),
+      },
+    ],
+  });
 }
 
 function buildAssociationsReport(assocs) {
   const formatDate = (value) => value ? new Date(value).toLocaleDateString() : '';
-  const row = (cells) => `<tr>${cells.map(cell => `<td>${cell || ''}</td>`).join('')}</tr>`;
-  const section = (title, headers, rows) => `
-    <section style="margin-bottom: 24px;">
-      <h2 style="font-size:18px; margin-bottom:12px; color:#111827;">${title}</h2>
-      <table style="width:100%; border-collapse:collapse; font-size:12px;">
-        <thead>
-          <tr>${headers.map(h => `<th style="text-align:left; padding:8px 10px; border-bottom:1px solid #e5e7eb; background:#f9fafb; color:#4b5563;">${h}</th>`).join('')}</tr>
-        </thead>
-        <tbody>${rows.join('')}</tbody>
-      </table>
-    </section>`;
-
-  return `<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>AgriCentral Associations Report</title>
-  <style>
-    body { font-family: 'Poppins', sans-serif; color: #111827; margin: 24px; }
-    h1 { font-size: 24px; margin-bottom: 6px; }
-    p { font-size: 13px; color: #6b7280; margin-top: 0; }
-    table { width: 100%; margin-top: 10px; }
-    td { padding: 8px 10px; vertical-align: top; border-bottom: 1px solid #e5e7eb; }
-    th { font-weight: 700; }
-    .meta { margin-bottom: 24px; }
-  </style>
-</head>
-<body>
-  <h1>AgriCentral Associations Report</h1>
-  <p class="meta">Generated on ${new Date().toLocaleString()}.</p>
-  ${section('Associations', ['Name', 'Address', 'President', 'Members', 'Registered At'], assocs.map(a => row([a.associationName, a.address || '', a.presidentName || a.presidentUserId?.fullName || '', a.memberCount ?? 0, formatDate(a.registeredAt)])))}
-</body>
-</html>`;
+  return buildStyledReport({
+    title: 'AgriCentral Associations Report',
+    subtitle: 'Farmer association records, leaders, and membership counts.',
+    accent: '#155e75',
+    softAccent: '#e0f2fe',
+    sections: [
+      {
+        title: 'Associations',
+        headers: ['Name', 'Address', 'President', 'Members', 'Registered At'],
+        rows: assocs.map(a => [a.associationName, a.address || '', a.presidentName || a.presidentUserId?.fullName || '', a.memberCount ?? 0, formatDate(a.registeredAt)]),
+      },
+    ],
+  });
 }
 
 function buildEquipmentReport(equipment, requests, logs) {
   const formatDate = (value) => value ? new Date(value).toLocaleDateString() : '';
-  const row = (cells) => `<tr>${cells.map(cell => `<td>${cell || ''}</td>`).join('')}</tr>`;
-  const section = (title, headers, rows) => `
-    <section style="margin-bottom: 24px;">
-      <h2 style="font-size:18px; margin-bottom:12px; color:#111827;">${title}</h2>
-      <table style="width:100%; border-collapse:collapse; font-size:12px;">
-        <thead>
-          <tr>${headers.map(h => `<th style="text-align:left; padding:8px 10px; border-bottom:1px solid #e5e7eb; background:#f9fafb; color:#4b5563;">${h}</th>`).join('')}</tr>
-        </thead>
-        <tbody>${rows.join('')}</tbody>
-      </table>
-    </section>`;
-
-  return `<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>AgriCentral Equipment Report</title>
-  <style>
-    body { font-family: 'Poppins', sans-serif; color: #111827; margin: 24px; }
-    h1 { font-size: 24px; margin-bottom: 6px; }
-    p { font-size: 13px; color: #6b7280; margin-top: 0; }
-    table { width: 100%; margin-top: 10px; }
-    td { padding: 8px 10px; vertical-align: top; border-bottom: 1px solid #e5e7eb; }
-    th { font-weight: 700; }
-    .meta { margin-bottom: 24px; }
-  </style>
-</head>
-<body>
-  <h1>AgriCentral Equipment Report</h1>
-  <p class="meta">Generated on ${new Date().toLocaleString()}.</p>
-  ${section('Equipment Inventory', ['Equipment', 'Category', 'Total', 'Available', 'Status'], equipment.map(item => row([item.equipment_name, item.category || '', item.quantity_total, item.quantity_available, item.status])))}
-  ${section('Equipment Requests', ['Association', 'Equipment', 'Qty', 'Purpose', 'Status', 'Requested At'], requests.map(r => row([r.association_id?.associationName || '', r.equipment_id?.equipment_name || '', r.quantity_requested, r.purpose || '', r.status, formatDate(r.requested_at)])))}
-  ${section('Condition Logs', ['Equipment', 'Recorded By', 'Condition', 'Remarks', 'Proof Image ID', 'Recorded At', 'Validated'], logs.map(l => row([l.equipment_id?.equipment_name || '', l.recorded_by?.fullName || '', l.condition_status || '', l.remarks || '', l.proofImageId || '', formatDate(l.recorded_at), l.validated ? 'Yes' : 'No'])))}
-</body>
-</html>`;
+  return buildStyledReport({
+    title: 'AgriCentral Equipment Report',
+    subtitle: 'Equipment inventory status, request pipeline, and field condition logs.',
+    accent: '#1d4ed8',
+    softAccent: '#dbeafe',
+    sections: [
+      {
+        title: 'Equipment Inventory',
+        headers: ['Equipment', 'Category', 'Total', 'Available', 'Status'],
+        rows: equipment.map(item => [item.equipment_name, item.category || '', item.quantity_total, item.quantity_available, item.status]),
+      },
+      {
+        title: 'Equipment Requests',
+        headers: ['Association', 'Equipment', 'Qty', 'Purpose', 'Status', 'Requested At'],
+        rows: requests.map(r => [r.association_id?.associationName || '', r.equipment_id?.equipment_name || '', r.quantity_requested, r.purpose || '', r.status, formatDate(r.requested_at)]),
+      },
+      {
+        title: 'Condition Logs',
+        headers: ['Equipment', 'Recorded By', 'Condition', 'Remarks', 'Proof Image ID', 'Recorded At', 'Validated'],
+        rows: logs.map(l => [l.equipment_id?.equipment_name || '', l.recorded_by?.fullName || '', l.condition_status || '', l.remarks || '', l.proofImageId || '', formatDate(l.recorded_at), l.validated ? 'Yes' : 'No']),
+      },
+    ],
+  });
 }
 
 function buildLivestockReport(livestock, livestockRequests) {
   const formatDate = (value) => value ? new Date(value).toLocaleDateString() : '';
-  const row = (cells) => `<tr>${cells.map(cell => `<td>${cell || ''}</td>`).join('')}</tr>`;
-  const section = (title, headers, rows) => `
-    <section style="margin-bottom: 24px;">
-      <h2 style="font-size:18px; margin-bottom:12px; color:#111827;">${title}</h2>
-      <table style="width:100%; border-collapse:collapse; font-size:12px;">
-        <thead>
-          <tr>${headers.map(h => `<th style="text-align:left; padding:8px 10px; border-bottom:1px solid #e5e7eb; background:#f9fafb; color:#4b5563;">${h}</th>`).join('')}</tr>
-        </thead>
-        <tbody>${rows.join('')}</tbody>
-      </table>
-    </section>`;
-
-  return `<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>AgriCentral Livestock Report</title>
-  <style>
-    body { font-family: 'Poppins', sans-serif; color: #111827; margin: 24px; }
-    h1 { font-size: 24px; margin-bottom: 6px; }
-    p { font-size: 13px; color: #6b7280; margin-top: 0; }
-    table { width: 100%; margin-top: 10px; }
-    td { padding: 8px 10px; vertical-align: top; border-bottom: 1px solid #e5e7eb; }
-    th { font-weight: 700; }
-    .meta { margin-bottom: 24px; }
-  </style>
-</head>
-<body>
-  <h1>AgriCentral Livestock Report</h1>
-  <p class="meta">Generated on ${new Date().toLocaleString()}.</p>
-  ${section('Livestock Inventory', ['Breed', 'Type', 'Total', 'Available', 'Status', 'Notes'], livestock.map(item => row([item.name, item.type || '', item.quantity_total, item.quantity_available, item.status, item.notes || ''])))}
-  ${section('Livestock Requests', ['Livestock', 'Type', 'Qty', 'Requester', 'Association', 'Status', 'Requested At', 'Purpose'], livestockRequests.map(r => row([r.livestock_id?.name || '', r.livestock_id?.type || '', r.quantity_requested, r.farmer_id?.fullName || '', r.association_id?.associationName || '', r.status, formatDate(r.createdAt), r.purpose || ''])))}
-</body>
-</html>`;
+  return buildStyledReport({
+    title: 'AgriCentral Livestock Report',
+    subtitle: 'Livestock inventory and distribution requests across associations.',
+    accent: '#b45309',
+    softAccent: '#fff0d8',
+    sections: [
+      {
+        title: 'Livestock Inventory',
+        headers: ['Breed', 'Type', 'Total', 'Available', 'Status', 'Notes'],
+        rows: livestock.map(item => [item.name, item.type || '', item.quantity_total, item.quantity_available, item.status, item.notes || '']),
+      },
+      {
+        title: 'Livestock Requests',
+        headers: ['Livestock', 'Type', 'Qty', 'Requester', 'Association', 'Status', 'Requested At', 'Purpose'],
+        rows: livestockRequests.map(r => [r.livestock_id?.name || '', r.livestock_id?.type || '', r.quantity_requested, r.farmer_id?.fullName || '', r.association_id?.associationName || '', r.status, formatDate(r.createdAt), r.purpose || '']),
+      },
+    ],
+  });
 }
 
 function buildCropsReport(crops) {
-  const row = (cells) => `<tr>${cells.map(cell => `<td>${cell || ''}</td>`).join('')}</tr>`;
-  const section = (title, headers, rows) => `
-    <section style="margin-bottom: 24px;">
-      <h2 style="font-size:18px; margin-bottom:12px; color:#111827;">${title}</h2>
-      <table style="width:100%; border-collapse:collapse; font-size:12px;">
-        <thead>
-          <tr>${headers.map(h => `<th style="text-align:left; padding:8px 10px; border-bottom:1px solid #e5e7eb; background:#f9fafb; color:#4b5563;">${h}</th>`).join('')}</tr>
-        </thead>
-        <tbody>${rows.join('')}</tbody>
-      </table>
-    </section>`;
-
-  return `<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>AgriCentral Crops Report</title>
-  <style>
-    body { font-family: 'Poppins', sans-serif; color: #111827; margin: 24px; }
-    h1 { font-size: 24px; margin-bottom: 6px; }
-    p { font-size: 13px; color: #6b7280; margin-top: 0; }
-    table { width: 100%; margin-top: 10px; }
-    td { padding: 8px 10px; vertical-align: top; border-bottom: 1px solid #e5e7eb; }
-    th { font-weight: 700; }
-    .meta { margin-bottom: 24px; }
-  </style>
-</head>
-<body>
-  <h1>AgriCentral Crops Report</h1>
-  <p class="meta">Generated on ${new Date().toLocaleString()}.</p>
-  ${section('Crops', ['Crop', 'Category', 'Area Planted', 'Yield Estimate', 'Status'], crops.map(crop => row([crop.crop_name || crop.name || '', crop.category || '', crop.area_planted || '', crop.yield_estimate || '', crop.status || ''])))}
-</body>
-</html>`;
+  return buildStyledReport({
+    title: 'AgriCentral Crops Report',
+    subtitle: 'Crop categories, planted area, estimated yield, and status monitoring.',
+    accent: '#15803d',
+    softAccent: '#e5f8e9',
+    sections: [
+      {
+        title: 'Crops',
+        headers: ['Crop', 'Category', 'Area Planted', 'Yield Estimate', 'Status'],
+        rows: crops.map(crop => [crop.crop_name || crop.name || '', crop.category || '', crop.area_planted || '', crop.yield_estimate || '', crop.status || '']),
+      },
+    ],
+  });
 }
 
 export default function CoordinatorDashboard() {
@@ -456,7 +539,16 @@ export default function CoordinatorDashboard() {
       else                await createLivestock(payload);
 
       setShowLivestockModal(false); reloadLivestock();
-    } catch (err) { setModalError(err.response?.data?.message || 'Failed to save livestock.'); }
+    } catch (err) {
+      const status = err.response?.status;
+      if (status === 404) {
+        setModalError('Livestock service is not available on the active backend. Redeploy the server with livestock routes enabled.');
+      } else if (status === 503) {
+        setModalError(err.response?.data?.message || 'Database is not connected. Please try again later.');
+      } else {
+        setModalError(err.response?.data?.message || 'Failed to save livestock.');
+      }
+    }
     finally { setLoading(false); }
   };
 
@@ -581,7 +673,7 @@ export default function CoordinatorDashboard() {
             </span>
           </div>
           <div className="coord-topbar-right" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <button style={{ ...btn.outline, padding: '8px 14px', fontSize: 12 }} onClick={() => setShowReportModal(true)}>
+            <button className="coord-light-green-btn" onClick={() => setShowReportModal(true)}>
               Generate Report
             </button>
             <span className="coord-topbar-badge">Program Coordinator</span>
@@ -596,8 +688,8 @@ export default function CoordinatorDashboard() {
               <div className="coord-page-header">
                 <h2>Registered Farmers</h2>
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <button className="btn-outline-sm" onClick={handleFarmersReport}>Generate Farmers Report</button>
-                  <button className="btn-primary-sm" onClick={() => { setModalError(''); setShowFarmer(true); }}>+ Add Farmer</button>
+                  <button className="report-tab-btn" onClick={handleFarmersReport}>Generate Farmers Report</button>
+                  <button className="coord-light-green-btn" onClick={() => { setModalError(''); setShowFarmer(true); }}>+ Add Farmer</button>
                 </div>
               </div>
               <div className="coord-card">
@@ -631,8 +723,8 @@ export default function CoordinatorDashboard() {
               <div className="coord-page-header">
                 <h2>Farmer Associations</h2>
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <button className="btn-outline-sm" onClick={handleAssociationsReport}>Generate Associations Report</button>
-                  <button className="btn-primary-sm" onClick={() => { setModalError(''); setShowAssoc(true); }}>+ Add Association</button>
+                  <button className="report-tab-btn" onClick={handleAssociationsReport}>Generate Associations Report</button>
+                  <button className="coord-light-green-btn" onClick={() => { setModalError(''); setShowAssoc(true); }}>+ Add Association</button>
                 </div>
               </div>
               <div className="coord-card">
@@ -677,7 +769,7 @@ export default function CoordinatorDashboard() {
               <SectionTitle
                 title="Equipment Inventory"
                 sub="All agricultural equipment with image stored in MongoDB"
-                action={<div style={{ display: 'flex', gap: 10 }}><button style={btn.outline} onClick={handleEquipmentReport}>Generate Equipment Report</button><button style={btn.primary} onClick={openAddEquip}>+ Add Equipment</button></div>}
+                action={<div style={{ display: 'flex', gap: 10 }}><button className="report-equipment-btn" onClick={handleEquipmentReport}>Generate Equipment Report</button><button style={btn.primary} onClick={openAddEquip}>+ Add Equipment</button></div>}
               />
               <DataTable
                 columns={['', 'Name', 'Category', 'Total', 'Available', 'Status', 'Actions']}
@@ -752,7 +844,7 @@ export default function CoordinatorDashboard() {
               <div className="coord-page-header">
                 <h2><i className="bx bx-cow" style={{ marginRight: 10 }}></i> Livestock Management</h2>
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <button className="btn-outline-sm" onClick={handleLivestockReport}>Generate Livestock Report</button>
+                  <button className="report-tab-btn" onClick={handleLivestockReport}>Generate Livestock Report</button>
                   <p>Monitor herd inventory and review livestock distribution requests.</p>
                 </div>
               </div>
@@ -845,7 +937,7 @@ export default function CoordinatorDashboard() {
               <div className="coord-page-header">
                 <h2>Crop Management</h2>
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <button className="btn-outline-sm" onClick={handleCropsReport}>Generate Crops Report</button>
+                  <button className="report-tab-btn" onClick={handleCropsReport}>Generate Crops Report</button>
                 </div>
               </div>
               <CropPage />
@@ -1053,18 +1145,22 @@ export default function CoordinatorDashboard() {
 
       {showReportModal && (
         <Modal title="Generate Report" onClose={() => setShowReportModal(false)} onSubmit={handleDownloadReport} wide>
-          <div style={{ padding: '4px 0 18px', color: '#4b5563', fontSize: 14, lineHeight: 1.6 }}>
+          <div className="report-modal-copy">
             Export a clean coordinator report as PDF. This includes farmers, associations, crops, equipment inventory, requests, condition logs, and livestock details.
           </div>
-          <div style={{ display: 'grid', gap: 12, marginBottom: 20 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 12, borderRadius: 12, background: '#f8fafc', border: '1px solid #e2e8f0' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: '50%', background: '#eff6ff', color: '#1d4ed8', fontSize: 18 }}>i</span>
-              <span style={{ fontSize: 13, color: '#475569' }}>After clicking Download, your browser will open the print dialog. Choose “Save as PDF” to create the file.</span>
+          <div className="report-modal-list">
+            <div className="report-modal-tip">
+              <span className="report-modal-tip-icon"><i className="bx bx-printer" /></span>
+              <span>After clicking Download, your browser will open the print dialog. Choose "Save as PDF" to create the file.</span>
+            </div>
+            <div className="report-modal-tip">
+              <span className="report-modal-tip-icon"><i className="bx bx-palette" /></span>
+              <span>Each report now uses themed colors and cleaner tables for easier presentation and printing.</span>
             </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
+          <div className="report-modal-actions">
             <button type="button" style={btn.ghost} onClick={() => setShowReportModal(false)}>Cancel</button>
-            <button type="submit" style={btn.primary}>Download PDF</button>
+            <button type="submit" className="report-download-btn">Download PDF</button>
           </div>
         </Modal>
       )}
