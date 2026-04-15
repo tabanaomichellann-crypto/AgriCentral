@@ -6,7 +6,7 @@ import '../styles/FarmerDashboard.css';
 import {
   useEquipment, useRequests,
   Modal, Field, StatusBadge, StatCard, EquipImage,
-  SectionTitle, DataTable, TD, Empty,
+  DataTable, TD, Empty,
   getEquipmentDisplayImage,
   btn, inputStyle,
 } from './Shared';
@@ -159,7 +159,7 @@ function EquipDetailModal({ item, onClose, onRequest }) {
 export default function FarmerDashboard() {
   const navigate  = useNavigate();
   const name      = localStorage.getItem('fullName');
-  const assocName = localStorage.getItem('associationName') || 'Your Association';
+  const assocName = localStorage.getItem('associationName') || '';
   const logout    = () => { localStorage.clear(); navigate('/login'); };
   const [tab, setTab] = useState('Equipment');
 
@@ -192,6 +192,7 @@ export default function FarmerDashboard() {
     <div className="coord-layout farmer-dashboard">
       <aside className="coord-sidebar">
         <div className="coord-sidebar-brand"><img src={logo} alt="AgriCentral Logo" className="dashboard-logo" /> AgriCentral</div>
+        <div className="coord-nav-section-label">Main Menu</div>
         <nav className="coord-nav">
           {navItems.map(n => (
             <button
@@ -209,7 +210,6 @@ export default function FarmerDashboard() {
             <div className="coord-user-meta">
               <div className="coord-user-name">{name}</div>
               <div className="coord-user-role">Assoc. Representative</div>
-              <div className="coord-user-association">{assocName}</div>
             </div>
           </div>
           <button className="coord-logout-btn" onClick={logout}><i className="bx bx-log-out" /> Sign out</button>
@@ -218,7 +218,14 @@ export default function FarmerDashboard() {
 
       <div className="coord-main">
         <div className="coord-topbar">
-          <span className="coord-topbar-title">{navItems.find(n => n.key === tab)?.label}</span>
+          <div className="coord-topbar-left">
+            <span className="coord-topbar-breadcrumb">
+              Dashboard &rsaquo; <span>{tab === 'Requests' ? 'My Requests' : 'Browse Equipment'}</span>
+            </span>
+          </div>
+          <div className="coord-topbar-right">
+            <span className="coord-topbar-badge">Association Representative</span>
+          </div>
         </div>
         <div className="coord-body">
 
@@ -250,44 +257,49 @@ export default function FarmerDashboard() {
                     </button>
                   ))}
                 </div>
-                <button style={btn.primary} onClick={() => openRequest(null)}>+ New Request</button>
+                <button
+                  style={{ ...btn.primary, whiteSpace: 'nowrap', minWidth: 132 }}
+                  onClick={() => openRequest(null)}
+                >
+                  + New Request
+                </button>
               </div>
 
               {/* Equipment grid */}
               {filtered.length === 0
                 ? <Empty icon={<i className="bx bx-box" />} message="No equipment available in this category." />
                 : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 16 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: 12 }}>
                     {filtered.map(item => (
                       <div
                         key={item._id}
                         style={{
-                          background: '#ffffff', border: '2px solid #16a34a', borderRadius: 16,
+                          background: '#ffffff', border: '2px solid #16a34a', borderRadius: 12,
                           overflow: 'hidden', cursor: 'pointer', transition: 'all 0.3s ease',
                           boxShadow: '0 2px 8px rgba(22, 163, 74, 0.08)',
                           display: 'flex',
                           flexDirection: 'column',
                           height: '100%',
-                          minHeight: '340px',
+                          minHeight: '245px',
                         }}
                         onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 24px rgba(22, 163, 74, 0.15)'}
                         onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(22, 163, 74, 0.08)'}
                         onClick={() => setDetailItem(item)}
                       >
-                        <div style={{ height: 140, background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderBottom: '2px solid #d1fae5' }}>
+                        <div style={{ height: 90, background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderBottom: '2px solid #d1fae5' }}>
                           <img
                             src={getEquipmentDisplayImage(item)}
                             alt={item.equipment_name}
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                           />
                         </div>
-                        <div style={{ padding: '16px 14px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                          <div style={{ fontWeight: 700, fontSize: 14, color: '#0f766e', marginBottom: 5, lineHeight: 1.3 }}>{item.equipment_name}</div>
-                          <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 10 }}>{item.category}</div>
+                        <div style={{ padding: '10px 10px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                          <div style={{ fontWeight: 700, fontSize: 12, color: '#0f766e', marginBottom: 3, lineHeight: 1.25 }}>{item.equipment_name}</div>
+                          <div style={{ fontSize: 10.5, color: '#6b7280', marginBottom: 7 }}>{item.category}</div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', gap: 8 }}>
-                            <span style={{ fontSize: 13, color: '#047857', fontWeight: 700 }}>{item.quantity_available} available</span>
+                            <span style={{ fontSize: 11, color: '#047857', fontWeight: 700 }}>{item.quantity_available} available</span>
                             <button
-                              style={{ ...btn.outline, padding: '6px 12px', fontSize: 12 }}
+                              style={{ ...btn.outline, padding: '4px 9px', fontSize: 10.5 }}
                               onClick={e => { e.stopPropagation(); openRequest(item); }}
                             >
                               Request
@@ -311,14 +323,21 @@ export default function FarmerDashboard() {
                 <StatCard label="Issued"         value={myIssued.length}                                                                   icon={<i className="bx bx-check" />} accent="#16a34a" />
               </div>
 
-              <SectionTitle
-                title="My Equipment Requests"
-                sub="Track the status of your submitted requests"
-                action={<button style={btn.primary} onClick={() => openRequest(null)}>+ New Request</button>}
-              />
+              <div className="farmer-page-banner">
+                <div className="farmer-page-banner-text">
+                  <h2>My Requests</h2>
+                  <p>Track the status of your submitted equipment requests</p>
+                </div>
+                <button
+                  style={{ ...btn.primary, whiteSpace: 'nowrap', minWidth: 132 }}
+                  onClick={() => openRequest(null)}
+                >
+                  + New Request
+                </button>
+              </div>
 
               <DataTable
-                  columns={['Equipment', 'Photo', 'Qty', 'President', 'Purpose', 'Status', 'Submitted']}
+                  columns={['Equipment', 'Photo', 'Qty', 'Organization', 'President', 'Purpose', 'Status', 'Submitted']}
                   emptyIcon={<i className="bx bx-clipboard" />} emptyMsg="You have not submitted any requests yet."
                   rows={requests.map(r => (
                     <>
@@ -327,6 +346,7 @@ export default function FarmerDashboard() {
                         <EquipImage imageId={r.equipment_id?.imageId} name="" size={40} />
                       </td>
                       <TD>{r.quantity_requested}</TD>
+                      <TD muted>{r.association_id?.associationName || assocName || '—'}</TD>
                       <TD muted>{r.president_name || '—'}</TD>
                       <TD muted>{r.purpose || '—'}</TD>
                       <TD><StatusBadge status={r.status} /></TD>

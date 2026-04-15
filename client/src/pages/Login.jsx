@@ -28,10 +28,12 @@ function Login() {
     setError('');
     try {
       const res = await loginUser(form);
-      const { token, role, fullName } = res.data;
+      const { token, role, fullName, associationId, associationName } = res.data;
       localStorage.setItem('token', token);
       localStorage.setItem('role', role);
       localStorage.setItem('fullName', fullName);
+      if (associationId) localStorage.setItem('associationId', associationId);
+      if (associationName) localStorage.setItem('associationName', associationName);
       navigate(ROLE_ROUTES[role] ?? null);
       if (!ROLE_ROUTES[role]) setError('Unknown role. Please contact the administrator.');
     } catch (err) {
@@ -79,7 +81,6 @@ function Login() {
             </button>
           </form>
 
-          <p className="auth-hint">Access is provided by the system administrator.</p>
           <p className="auth-hint auth-hint-action">
             Farmer Association Representative? <Link to="/register-farmer-association">Register here</Link>
           </p>

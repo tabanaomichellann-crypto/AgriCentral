@@ -73,7 +73,7 @@ export default function EquipmentRequestPage() {
       />
 
       <DataTable
-        columns={['Equipment', 'Photo', 'Qty', 'Requester', 'Status', 'Date', 'Actions']}
+        columns={['Equipment', 'Photo', 'Qty', 'Organization', 'Requester', 'Status', 'Date', 'Actions']}
         emptyIcon={<i className="bx bx-clipboard" />}
         emptyMsg={role === 'Farmer Association Representative'
           ? 'You have not submitted any requests yet.'
@@ -86,6 +86,7 @@ export default function EquipmentRequestPage() {
               <EquipImage imageId={r.equipment_id?.imageId} name="" size={40} />
             </td>
             <TD>{r.quantity_requested}</TD>
+            <TD muted>{r.association_id?.associationName || '—'}</TD>
             <TD muted>{r.farmer_id?.fullName || '—'}</TD>
             <TD><StatusBadge status={r.status} /></TD>
             <TD muted>{new Date(r.createdAt).toLocaleDateString()}</TD>
@@ -147,6 +148,13 @@ export default function EquipmentRequestPage() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+            <div style={{ background: '#f9fafb', borderRadius: 8, padding: 16 }}>
+              <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 4 }}>Organization</div>
+              <div style={{ fontSize: 16, fontWeight: 600, color: '#111827' }}>
+                {selectedRequest.association_id?.associationName || 'No association'}
+              </div>
+            </div>
+
             <div style={{ background: '#f9fafb', borderRadius: 8, padding: 16 }}>
               <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 4 }}>Requester</div>
               <div style={{ fontSize: 16, fontWeight: 600, color: '#111827' }}>

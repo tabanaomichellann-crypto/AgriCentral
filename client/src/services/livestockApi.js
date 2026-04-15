@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { getApiBaseUrl } from './baseUrl';
 
-const PRIMARY_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
+const PRIMARY_BASE_URL = getApiBaseUrl();
 const LOCAL_BASE_URL = 'http://localhost:5000/api';
 
 const API = axios.create({ baseURL: PRIMARY_BASE_URL });

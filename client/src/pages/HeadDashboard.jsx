@@ -15,6 +15,10 @@ import {
 } from './Shared';
 import logo from '../assets/AgriCentral_Logo.png';
 
+function getInitials(name = '') {
+  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+}
+
 // ── Issuance decision modal ────────────────────────────────────────────────
 function IssuanceModal({ request, decision, onClose, onDone }) {
   const [remarks, setRemarks] = useState('');
@@ -112,6 +116,7 @@ export default function HeadDashboard() {
     <div className="coord-layout">
       <aside className="coord-sidebar">
         <div className="coord-sidebar-brand"><img src={logo} alt="AgriCentral Logo" className="dashboard-logo" /> AgriCentral</div>
+        <div className="coord-nav-section-label">Main Menu</div>
         <nav className="coord-nav">
           {navItems.map(n => (
             <button key={n.key} className={`coord-nav-btn${tab === n.key ? ' active' : ''}`} onClick={() => setTab(n.key)}>
@@ -120,16 +125,28 @@ export default function HeadDashboard() {
           ))}
         </nav>
         <div className="coord-sidebar-footer">
-          <div className="coord-user-info">
-            <div className="coord-user-name">{name}</div>
-            <div className="coord-user-role">Head of Office</div>
+          <div className="coord-user-card">
+            <div className="coord-user-avatar">{getInitials(name || 'Head')}</div>
+            <div>
+              <div className="coord-user-name">{name}</div>
+              <div className="coord-user-role">Head of Office</div>
+            </div>
           </div>
           <button className="coord-logout-btn" onClick={logout}><i className="bx bx-log-out" /> Sign out</button>
         </div>
       </aside>
 
       <div className="coord-main">
-        <div className="coord-topbar"><span className="coord-topbar-title">{navItems.find(n => n.key === tab)?.label}</span></div>
+        <div className="coord-topbar">
+          <div className="coord-topbar-left">
+            <span className="coord-topbar-breadcrumb">
+              Dashboard &rsaquo; <span>{navItems.find(n => n.key === tab)?.label}</span>
+            </span>
+          </div>
+          <div className="coord-topbar-right">
+            <span className="coord-topbar-badge">Head of Office</span>
+          </div>
+        </div>
         <div className="coord-body">
 
           {/* ── OVERVIEW ── */}

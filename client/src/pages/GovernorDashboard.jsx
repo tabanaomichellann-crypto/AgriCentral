@@ -9,6 +9,10 @@ import {
 } from './Shared';
 import logo from '../assets/AgriCentral_Logo.png';
 
+function getInitials(name = '') {
+  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+}
+
 // Approval Modal
 function DecisionModal({ request, decision, onClose, onDone }) {
   const [remarks, setRemarks] = useState('');
@@ -57,7 +61,6 @@ function DecisionModal({ request, decision, onClose, onDone }) {
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════════
 export default function GovernorDashboard() {
   const navigate = useNavigate();
   const name     = localStorage.getItem('fullName');
@@ -81,6 +84,7 @@ export default function GovernorDashboard() {
       {/* Sidebar */}
       <aside className="coord-sidebar">
         <div className="coord-sidebar-brand"><img src={logo} alt="AgriCentral Logo" className="dashboard-logo" /> AgriCentral</div>
+        <div className="coord-nav-section-label">Main Menu</div>
         <nav className="coord-nav">
           {navItems.map(n => (
             <button key={n.key} className={`coord-nav-btn${tab === n.key ? ' active' : ''}`} onClick={() => setTab(n.key)}>
@@ -89,9 +93,12 @@ export default function GovernorDashboard() {
           ))}
         </nav>
         <div className="coord-sidebar-footer">
-          <div className="coord-user-info">
-            <div className="coord-user-name">{name}</div>
-            <div className="coord-user-role">Governor</div>
+          <div className="coord-user-card">
+            <div className="coord-user-avatar">{getInitials(name || 'Governor')}</div>
+            <div>
+              <div className="coord-user-name">{name}</div>
+              <div className="coord-user-role">Governor Assistant</div>
+            </div>
           </div>
           <button className="coord-logout-btn" onClick={logout}><i className="bx bx-log-out" /> Sign out</button>
         </div>
@@ -99,25 +106,57 @@ export default function GovernorDashboard() {
 
       {/* Main */}
       <div className="coord-main">
-        <div className="coord-topbar"><span className="coord-topbar-title">{tab === 'Equipment' ? 'Equipment Requests' : 'Overview'}</span></div>
+        <div className="coord-topbar">
+          <div className="coord-topbar-left">
+            <span className="coord-topbar-breadcrumb">
+              Dashboard &rsaquo; <span>{tab === 'Equipment' ? 'Equipment Requests' : 'Overview'}</span>
+            </span>
+          </div>
+          <div className="coord-topbar-right">
+            <span className="coord-topbar-badge">Governor Assistant</span>
+          </div>
+        </div>
         <div className="coord-body">
 
           {/* ── OVERVIEW ── */}
           {tab === 'Overview' && (
             <>
-              <h2 style={{ margin: '0 0 20px', fontSize: 20, color: '#111827' }}>Welcome, Governor {name}</h2>
+              <div className="coord-page-header">
+                <div>
+                  <h2>Governor Dashboard</h2>
+                  <p>Review and approve equipment requests from farmer associations.</p>
+                </div>
+              </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
                 <StatCard label="Pending Approval" value={pending.length}     icon={<i className="bx bx-time" />} accent="#d97706" />
                 <StatCard label="Approved"          value={govApproved.length} icon={<i className="bx bx-check-circle" />} accent="#16a34a" />
                 <StatCard label="Rejected"          value={rejected.length}    icon={<i className="bx bx-x-circle" />} accent="#dc2626" />
               </div>
-              <div style={{ marginTop: 24, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 20 }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 8 }}>Your Role in the Process</div>
-                <p style={{ fontSize: 13, color: '#6b7280', lineHeight: 1.7 }}>
-                  As Governor, you are the <strong>first approval gate</strong> for all agricultural equipment requests
-                  submitted by Farmer Associations. After you approve, requests proceed to the Head of Office for
-                  final issuance. Rejected requests are returned to the association.
-                </p>
+              <div className="coord-card" style={{ marginTop: 24, padding: 0, overflow: 'hidden' }}>
+                <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', padding: 16, background: '#f8fafc' }}>
+                  <div style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: 10,
+                    background: '#e0f2fe',
+                    color: '#0369a1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 18,
+                    flexShrink: 0,
+                  }}>
+                    <i className="bx bx-shield-quarter" />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>Your Role in the Process</div>
+                    <p style={{ margin: 0, fontSize: 14, color: '#475569', lineHeight: 1.7 }}>
+                      As Governor, you are the <strong>first approval gate</strong> for agricultural equipment requests
+                      submitted by Farmer Associations. Once approved, requests proceed to the Head of Office for
+                      final issuance. Rejected requests are returned to the association.
+                    </p>
+                  </div>
+                </div>
               </div>
             </>
           )}
@@ -125,6 +164,12 @@ export default function GovernorDashboard() {
           {/* ── EQUIPMENT REQUESTS ── */}
           {tab === 'Equipment' && (
             <>
+              <div className="coord-page-header">
+                <div>
+                  <h2>Equipment Requests</h2>
+                  <p>Approve or reject pending requests and monitor processing history.</p>
+                </div>
+              </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 24 }}>
                 <StatCard label="Awaiting Your Decision" value={pending.length}     icon={<i className="bx bx-time" />} accent="#d97706" />
                 <StatCard label="Forwarded to Head"      value={govApproved.length} icon={<i className="bx bx-send" />} accent="#2563eb" />
@@ -143,7 +188,7 @@ export default function GovernorDashboard() {
                     <TD muted>{r.association_id?.associationName || '—'}</TD>
                     <TD>{r.quantity_requested}</TD>
                     <TD muted>{r.purpose || '—'}</TD>
-                    <TD muted>{new Date(r.requested_at).toLocaleDateString()}</TD>
+                    <TD muted>{new Date(r.createdAt || r.requested_at).toLocaleDateString()}</TD>
                     <td style={{ padding: '10px 16px' }}>
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button style={btn.approve} onClick={() => setActionModal({ request: r, decision: 'approve' })}>Approve</button>
@@ -165,7 +210,7 @@ export default function GovernorDashboard() {
                     <TD muted>{r.association_id?.associationName || '—'}</TD>
                     <TD>{r.quantity_requested}</TD>
                     <TD><StatusBadge status={r.status} /></TD>
-                    <TD muted>{new Date(r.requested_at).toLocaleDateString()}</TD>
+                    <TD muted>{new Date(r.createdAt || r.requested_at).toLocaleDateString()}</TD>
                   </>
                 ))}
               />

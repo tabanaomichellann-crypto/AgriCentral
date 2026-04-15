@@ -467,6 +467,16 @@ export default function CoordinatorDashboard() {
     catch { setError('Failed to remove member.'); }
   };
 
+  const handleDeleteAssoc = async (id) => {
+    if (!window.confirm('Delete this association?')) return;
+    try {
+      await deleteAssociation(id);
+      loadAll();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to delete association.');
+    }
+  };
+
   // ── Equipment handlers ─────────────────────────────────────────────────
   const openAddEquip = () => {
     setEditItem(null);
@@ -744,7 +754,7 @@ export default function CoordinatorDashboard() {
                           <td className="coord-td-muted">{new Date(a.registeredAt).toLocaleDateString()}</td>
                           <td style={{ display: 'flex', gap: 6 }}>
                             <button className="btn-outline-sm" onClick={() => openMembers(a)}>Members</button>
-                            <button className="btn-danger-sm" onClick={() => deleteAssociation(a._id).then(loadAll)}>Delete</button>
+                            <button className="btn-danger-sm" onClick={() => handleDeleteAssoc(a._id)}>Delete</button>
                           </td>
                         </tr>
                       ))}

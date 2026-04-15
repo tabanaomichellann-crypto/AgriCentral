@@ -2,8 +2,9 @@
 // All equipment-related API calls. Import and merge into your existing services/api.js
 
 import axios from 'axios';
+import { getApiBaseUrl } from './baseUrl';
 
-const API = axios.create({ baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api' });
+const API = axios.create({ baseURL: getApiBaseUrl() });
 
 // Attach token automatically
 API.interceptors.request.use((config) => {
@@ -34,5 +35,5 @@ export const validateConditionLog = (logId) =>
 
 export const getImageUrl = (imageId) =>
   imageId
-    ? `${process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api'}/images/${imageId}`
+    ? `${getApiBaseUrl()}/images/${imageId}`
     : null;

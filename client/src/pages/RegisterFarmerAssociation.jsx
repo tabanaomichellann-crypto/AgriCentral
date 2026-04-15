@@ -8,9 +8,7 @@ function RegisterFarmerAssociation() {
   const [form, setForm] = useState({
     fullName: '',
     username: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -26,11 +24,6 @@ function RegisterFarmerAssociation() {
     setError('');
     setSuccess('');
 
-    if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
-
     if (form.password.length < 6) {
       setError('Password must be at least 6 characters long.');
       return;
@@ -41,7 +34,6 @@ function RegisterFarmerAssociation() {
       await registerFarmerAssociation({
         fullName: form.fullName,
         username: form.username,
-        email: form.email,
         password: form.password
       });
 
@@ -72,7 +64,7 @@ function RegisterFarmerAssociation() {
 
       <div className="auth-right">
         <div className="auth-card">
-          <h2>Farmer Association Registration</h2>
+          <h2>Sign Up</h2>
           <p className="auth-sub">Create your representative account</p>
 
           {error && <div className="auth-error">{error}</div>}
@@ -104,35 +96,12 @@ function RegisterFarmerAssociation() {
             </div>
 
             <div className="form-group">
-              <label>Email (optional)</label>
-              <input
-                type="email"
-                name="email"
-                placeholder="Enter your email"
-                value={form.email}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="form-group">
               <label>Password</label>
               <input
                 type="password"
                 name="password"
                 placeholder="Create a password"
                 value={form.password}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Confirm Password</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                placeholder="Confirm password"
-                value={form.confirmPassword}
                 onChange={handleChange}
                 required
               />

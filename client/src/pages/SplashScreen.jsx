@@ -18,7 +18,7 @@ export default function SplashScreen() {
         </div>
 
         <h1 className="splash-title">AgriCentral</h1>
-        <p className="splash-subtitle">Agriculture Management System</p>
+        <p className="splash-subtitle">Agriculture Monitoring System</p>
 
         <div className="splash-loader" aria-hidden="true">
           <span />

@@ -139,6 +139,7 @@ export default function ExtensionWorkerDashboard() {
     <div className="coord-layout">
       <aside className="coord-sidebar">
         <div className="coord-sidebar-brand"><img src={logo} alt="AgriCentral Logo" className="dashboard-logo" /> AgriCentral</div>
+        <div className="coord-nav-section-label">Main Menu</div>
         <nav className="coord-nav">
           {navItems.map(n => (
             <button key={n.key} className={`coord-nav-btn${tab === n.key ? ' active' : ''}`} onClick={() => setTab(n.key)}>
